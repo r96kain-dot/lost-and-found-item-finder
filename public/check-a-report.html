@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -21,8 +21,15 @@
           <span class="brand__name">Lost &amp; Found Item Finder</span>
         </a>
         <nav class="site-nav" aria-label="Main">
-          <a class="site-nav__link" href="report-an-item.html">Report an item</a>
-          <a class="site-nav__link" href="check-a-report.html" aria-current="page">Check a report</a>
+          <a class="site-nav__link" href="report-an-item.html"
+            >Report an item</a
+          >
+          <a
+            class="site-nav__link"
+            href="check-a-report.html"
+            aria-current="page"
+            >Check a report</a
+          >
         </nav>
       </div>
     </header>
@@ -30,7 +37,10 @@
     <main class="page">
       <div class="page__header">
         <h1>Check a report you filed</h1>
-        <p class="page__subtitle">Look it up, then track it here. The form stays open so you can check another.</p>
+        <p class="page__subtitle">
+          Look it up, then track it here. The form stays open so you can check
+          another.
+        </p>
       </div>
 
       <div class="check-layout">
@@ -38,7 +48,9 @@
           <form id="find-report-form" class="card card--padded find-report">
             <h2>Find a report</h2>
             <div class="field">
-              <label class="field__label" for="reference">Reference number</label>
+              <label class="field__label" for="reference"
+                >Reference number</label
+              >
               <input
                 class="input"
                 id="reference"
@@ -47,10 +59,14 @@
                 placeholder="#1000"
                 aria-describedby="reference-help"
               />
-              <p class="field__help" id="reference-help">From your confirmation page, like #1000.</p>
+              <p class="field__help" id="reference-help">
+                From your confirmation page, like #1000.
+              </p>
             </div>
             <div class="field">
-              <label class="field__label" for="check-contact">Phone number or email</label>
+              <label class="field__label" for="check-contact"
+                >Phone number or email</label
+              >
               <input
                 class="input"
                 id="check-contact"
@@ -59,9 +75,13 @@
                 placeholder="021 234 5678"
                 aria-describedby="check-contact-help"
               />
-              <p class="field__help" id="check-contact-help">Whichever one you gave when you filed it.</p>
+              <p class="field__help" id="check-contact-help">
+                Whichever one you gave when you filed it.
+              </p>
             </div>
-            <button class="button button--primary button--block" type="submit">Find my report</button>
+            <button class="button button--primary button--block" type="submit">
+              Find my report
+            </button>
           </form>
 
           <section class="card lost-reference">
@@ -75,30 +95,91 @@
         </div>
 
         <!-- Placeholder result for #1000, shown after "Find my report". -->
-        <section id="check-result" class="check-result" aria-labelledby="check-result-title" hidden>
+        <section
+          id="check-result"
+          class="check-result"
+          aria-labelledby="check-result-title"
+          hidden
+        >
           <div class="check-result__header">
-            <h2 class="check-result__title" id="check-result-title" tabindex="-1">
-              <span>Report <span class="check-result__number">#1000</span></span>
+            <h2
+              class="check-result__title"
+              id="check-result-title"
+              tabindex="-1"
+            >
+              <span
+                >Report <span class="check-result__number">#1000</span></span
+              >
               <span class="badge badge--lost">Lost</span>
             </h2>
-            <p class="check-result__meta">Filed 23 Aug 2026. We text 021 234 5678 with any update.</p>
+            <p class="check-result__meta">
+              Filed 23 Aug 2026. We text 021 234 5678 with any update.
+            </p>
           </div>
 
           <div class="card progress">
             <ol class="progress__steps" aria-label="Report progress">
               <li class="progress__step progress__step--done">
-                <span class="progress__marker"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2.5 7.5l3 3 6-7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                <span class="progress__marker"
+                  ><svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 14 14"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M2.5 7.5l3 3 6-7"
+                      stroke="currentColor"
+                      stroke-width="2.4"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    /></svg
+                ></span>
                 Submitted
               </li>
               <li class="progress__step progress__step--done">
-                <span class="progress__marker"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2.5 7.5l3 3 6-7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                <span class="progress__marker"
+                  ><svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 14 14"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M2.5 7.5l3 3 6-7"
+                      stroke="currentColor"
+                      stroke-width="2.4"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    /></svg
+                ></span>
                 Under review
               </li>
               <li class="progress__step progress__step--done">
-                <span class="progress__marker"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2.5 7.5l3 3 6-7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                <span class="progress__marker"
+                  ><svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 14 14"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M2.5 7.5l3 3 6-7"
+                      stroke="currentColor"
+                      stroke-width="2.4"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    /></svg
+                ></span>
                 Match found
               </li>
-              <li class="progress__step progress__step--current" aria-current="step">
+              <li
+                class="progress__step progress__step--current"
+                aria-current="step"
+              >
                 <span class="progress__marker"></span>
                 Ready to collect
               </li>
@@ -110,10 +191,14 @@
           </div>
 
           <div class="card match-ready">
-            <h3 class="match-ready__title">A match is ready for you to collect</h3>
+            <h3 class="match-ready__title">
+              A match is ready for you to collect
+            </h3>
             <div class="match-ready__body">
               <p>Found report #1031, handed in at Site Office A.</p>
-              <p class="match-ready__note">A moderator compared both reports and confirmed it.</p>
+              <p class="match-ready__note">
+                A moderator compared both reports and confirmed it.
+              </p>
               <dl class="detail-grid match-ready__collect">
                 <div>
                   <dt>Collect from</dt>

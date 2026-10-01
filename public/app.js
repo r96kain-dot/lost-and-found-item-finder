@@ -38,7 +38,9 @@ function initReportForm() {
   }
 
   function applyContactMethod() {
-    const method = form.querySelector('input[name="contact_method"]:checked').value;
+    const method = form.querySelector(
+      'input[name="contact_method"]:checked',
+    ).value;
 
     if (method === "email") {
       contactInput.type = "email";
