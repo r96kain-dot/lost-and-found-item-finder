@@ -956,10 +956,12 @@ legend {
 
 /* --- Mobile (below 900px) ------------------------------------------------- */
 
-/* One column, the page title in the header, and the header nav moved to a tab
-   bar at the bottom. Between 600px and 900px (tablets) the content stays centred
-   and no wider than --mobile-max-width. Pages fit on one phone screen where
-   they can, and scroll normally where they can't (small phones, landscape). */
+/* Public pages: one column, the page title in the header, and the header nav
+   moved to a tab bar at the bottom (.site-nav--tab-bar). Between 600px and
+   900px (tablets) the content stays centred and no wider than
+   --mobile-max-width. Pages fit on one phone screen where they can, and scroll
+   normally where they can't (small phones, landscape). Moderator pages keep
+   their header and reflow; their rules are in the next section. */
 @media (max-width: 900px) {
   :root {
     --header-height: 3.25rem;
@@ -968,17 +970,20 @@ legend {
     --page-gutter: 0.75rem;
   }
 
-  /* A fixed 16px: inputs below 16px make iPhones zoom in when tapped. The
-     scroll padding stops a focused field from scrolling under the tab bar. */
+  /* A fixed 16px: inputs below 16px make iPhones zoom in when tapped. */
   html {
     font-size: 16px;
+  }
+
+  /* Room for the tab bar, so it never covers the end of the page, and scroll
+     padding so a focused field never scrolls under it. */
+  html:has(.site-nav--tab-bar) {
     scroll-padding-bottom: calc(
       var(--tab-bar-height) + env(safe-area-inset-bottom) + var(--space-2)
     );
   }
 
-  /* Room for the tab bar, so it never covers the end of the page. */
-  body {
+  body:has(.site-nav--tab-bar) {
     padding-bottom: calc(var(--tab-bar-height) + env(safe-area-inset-bottom));
   }
 
@@ -998,8 +1003,11 @@ legend {
   /* --- Header and tab bar --- */
 
   .site-header__inner {
-    max-width: var(--mobile-max-width);
     padding: 0 var(--page-gutter);
+  }
+
+  .site-header:has(.site-nav--tab-bar) .site-header__inner {
+    max-width: var(--mobile-max-width);
   }
 
   .brand__page {
@@ -1007,7 +1015,7 @@ legend {
     font-size: var(--font-size-lg);
   }
 
-  .site-nav {
+  .site-nav--tab-bar {
     position: fixed;
     right: 0;
     bottom: 0;
@@ -1022,7 +1030,7 @@ legend {
     background: var(--color-surface);
   }
 
-  .site-nav__link {
+  .site-nav--tab-bar .site-nav__link {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1035,11 +1043,11 @@ legend {
     font-weight: var(--font-weight-bold);
   }
 
-  .site-nav__link:hover {
+  .site-nav--tab-bar .site-nav__link:hover {
     color: var(--color-text);
   }
 
-  .site-nav__link[aria-current="page"] {
+  .site-nav--tab-bar .site-nav__link[aria-current="page"] {
     color: var(--color-primary);
   }
 
@@ -1048,7 +1056,7 @@ legend {
   }
 
   /* The tab bar is white, so it goes back to the teal ring, drawn inside. */
-  .site-header .site-nav__link:focus-visible {
+  .site-nav--tab-bar .site-nav__link:focus-visible {
     box-shadow: inset var(--focus-ring);
   }
 
