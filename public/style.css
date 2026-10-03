@@ -968,9 +968,13 @@ legend {
     --page-gutter: 0.75rem;
   }
 
-  /* A fixed 16px: inputs below 16px make iPhones zoom in when tapped. */
+  /* A fixed 16px: inputs below 16px make iPhones zoom in when tapped. The
+     scroll padding stops a focused field from scrolling under the tab bar. */
   html {
     font-size: 16px;
+    scroll-padding-bottom: calc(
+      var(--tab-bar-height) + env(safe-area-inset-bottom) + var(--space-2)
+    );
   }
 
   /* Room for the tab bar, so it never covers the end of the page. */
