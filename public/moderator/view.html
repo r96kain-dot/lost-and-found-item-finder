@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>View Match · Lost & Found Item Finder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    />
+    <link rel="stylesheet" href="../style.css" />
+    <script src="../app.js" defer></script>
+  </head>
+  <body data-show-param="status" data-show-default="claimed">
+    <header class="site-header">
+      <div class="site-header__inner">
+        <div class="site-header__start">
+          <a class="brand" href="matches.html">
+            <span class="brand__logo" aria-hidden="true">LF</span>
+            <span class="brand__name">Lost &amp; Found Item Finder</span>
+          </a>
+          <span class="site-header__badge">Moderator</span>
+        </div>
+        <div class="site-header__end">
+          <nav class="site-nav" aria-label="Moderator">
+            <a class="site-nav__link" href="matches.html">Potential Matches</a>
+          </nav>
+          <!-- Nothing to sign out of yet; the backend ends the session at integration. -->
+          <a class="button button--on-primary" href="login.html"
+            ><svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <path d="M16 17l5-5-5-5M21 12H9" /></svg
+            >Log out</a
+          >
+          <!-- The signed-in Moderator's initials. Display only. -->
+          <span class="avatar"
+            ><span aria-hidden="true">AC</span
+            ><span class="visually-hidden"
+              >Signed in as a.ceniza@lostfound.app</span
+            ></span
+          >
+        </div>
+      </div>
+    </header>
+
+    <!-- Placeholder case #1009 / #1008. ?status=owner-notified shows it before the
+         item is released; ?status=claimed (the default) shows it afterwards. -->
+    <main class="page page--moderator">
+      <a class="back-link" href="matches.html"
+        ><svg
+          width="16"
+          height="16"
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M10 3L5 8l5 5" /></svg
+        >Potential Matches</a
+      >
+      <div class="mod-heading mod-heading__title">
+        <h1>Umbrella — Black</h1>
+        <span
+          class="badge badge--status badge--owner-notified"
+          data-show-for="owner-notified"
+          hidden
+          >Owner notified</span
+        >
+        <span
+          class="badge badge--status badge--claimed"
+          data-show-for="claimed"
+          hidden
+          >Claimed</span
+        >
+      </div>
+
+      <div class="banner banner--info" data-show-for="owner-notified" hidden>
+        <p class="banner__text">
+          Owner notified on 23 Aug 2026. Verify the Claimant before the item
+          leaves the counter.
+        </p>
+        <a
+          class="button button--primary button--small"
+          href="verify-claimant.html"
+          >Verify claimant</a
+        >
+      </div>
+      <div class="banner banner--success" data-show-for="claimed" hidden>
+        <svg
+          class="banner__icon"
+          width="32"
+          height="32"
+          viewBox="0 0 32 32"
+          aria-hidden="true"
+        >
+          <circle cx="16" cy="16" r="16" fill="currentColor" />
+          <path
+            d="M9.5 16.5l4.5 4.5 8.5-10"
+            fill="none"
+            stroke="#fff"
+            stroke-width="3"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+        <p class="banner__text">
+          Released to the owner on 24 Aug 2026 at 15:20 by
+          a.ceniza@lostfound.app.<br />At Site Office A
+        </p>
+      </div>
+
+      <div class="report-pair">
+        <section
+          class="card report-card report-card--lost"
+          aria-labelledby="report-1009"
+        >
+          <div class="report-card__header">
+            <span class="badge badge--lost">Lost</span>
+            <div>
+              <h2 id="report-1009">Report #1009</h2>
+              <p>Filed 21 Aug 2026 · m.reyes@ac.nz</p>
+            </div>
+          </div>
+          <dl class="report-card__rows">
+            <div class="report-card__row">
+              <dt>Item type</dt>
+              <dd><span>Umbrella</span></dd>
+            </div>
+            <div class="report-card__row">
+              <dt>Brand / Model</dt>
+              <dd><span>Blunt</span></dd>
+            </div>
+            <div class="report-card__row">
+              <dt>Colour</dt>
+              <dd><span>Black</span></dd>
+            </div>
+            <div class="report-card__row">
+              <dt>Area</dt>
+              <dd><span>Level 2 — Lecture hall B</span></dd>
+            </div>
+            <div class="report-card__row">
+              <dt>Date lost</dt>
+              <dd><span>21 Aug 2026</span></dd>
+            </div>
+            <div class="report-card__row">
+              <dt>Photo</dt>
+              <dd>
+                <span
+                  ><span class="report-card__photo"
+                    ><span class="thumb thumb--none" aria-hidden="true"></span
+                    ><span
+                      ><span class="report-card__empty">No photo attached</span
+                      ><br />The owner filed from memory.</span
+                    ></span
+                  ></span
+                >
+              </dd>
+            </div>
+            <div class="report-card__row">
+              <dt>Notes</dt>
+              <dd>
+                <span
+                  ><span class="report-card__plain"
+                    >Blunt umbrella, one rib is bent and the strap is
+                    missing.</span
+                  ><span
+                    class="report-card__hint"
+                    data-show-for="claimed"
+                    hidden
+                    >The bent rib is what closed this case.</span
+                  ></span
+                >
+              </dd>
+            </div>
+          </dl>
+        </section>
+        <section
+          class="card report-card report-card--found"
+          aria-labelledby="report-1008"
+        >
+          <div class="report-card__header">
+            <span class="badge badge--found">Found</span>
+            <div>
+              <h2 id="report-1008">Report #1008</h2>
+              <p>Handed in at Site Office A · Filed 22 Aug 2026</p>
+            </div>
+          </div>
+          <dl class="report-card__rows">
+            <div class="report-card__row">
+              <dt>Item type</dt>
+              <dd><span>Umbrella</span></dd>
+            </div>
+            <div class="report-card__row">
+              <dt>Brand / Model</dt>
+              <dd>
+                <span><span class="report-card__empty">Not entered</span></span>
+              </dd>
+            </div>
+            <div class="report-card__row">
+              <dt>Colour</dt>
+              <dd><span>Black</span></dd>
+            </div>
+            <div class="report-card__row">
+              <dt>Area</dt>
+              <dd><span>Level 2 — Lecture hall B</span></dd>
+            </div>
+            <div class="report-card__row">
+              <dt>Date found</dt>
+              <dd><span>22 Aug 2026</span></dd>
+            </div>
+            <div class="report-card__row">
+              <dt>Photo</dt>
+              <dd>
+                <span
+                  ><span class="report-card__photo"
+                    ><span class="thumb" aria-hidden="true"
+                      ><svg
+                        width="28"
+                        height="22"
+                        viewBox="0 0 46 32"
+                        fill="none"
+                      >
+                        <rect
+                          x="1.5"
+                          y="1.5"
+                          width="43"
+                          height="29"
+                          rx="3"
+                          stroke="currentColor"
+                          stroke-width="3"
+                        />
+                        <circle cx="13" cy="10" r="3.5" fill="currentColor" />
+                        <path
+                          d="M4 27l12-11 8 7 6-5 12 9"
+                          stroke="currentColor"
+                          stroke-width="3"
+                          stroke-linejoin="round"
+                        /></svg></span
+                    ><span
+                      >Photo added at hand-in<span class="report-card__hint"
+                        >Moderator only.</span
+                      ></span
+                    ></span
+                  ></span
+                >
+              </dd>
+            </div>
+            <div class="report-card__row">
+              <dt>Notes</dt>
+              <dd>
+                <span
+                  ><span class="report-card__plain"
+                    >Black umbrella, bent rib on one side. No name on it.</span
+                  ></span
+                >
+              </dd>
+            </div>
+          </dl>
+        </section>
+      </div>
+
+      <section class="activity" aria-labelledby="activity-title">
+        <h2 id="activity-title">Activity on this match</h2>
+        <div class="table-wrap">
+          <table class="table activity-table">
+            <thead>
+              <tr>
+                <th scope="col">When</th>
+                <th scope="col">Event</th>
+                <th scope="col">Recorded by</th>
+                <th scope="col">Detail</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>21 Aug, 09:14</td>
+                <td>
+                  <span class="event event--lost">Report received · Lost</span>
+                </td>
+                <td>System</td>
+                <td>#1009 filed. Contact by email.</td>
+              </tr>
+              <tr>
+                <td>22 Aug, 11:02</td>
+                <td>
+                  <span class="event event--found"
+                    >Report received · Found</span
+                  >
+                </td>
+                <td>System</td>
+                <td>#1008 handed in at Site Office A.</td>
+              </tr>
+              <tr>
+                <td>22 Aug, 11:03</td>
+                <td><span class="event event--flagged">Match flagged</span></td>
+                <td>System</td>
+                <td>Scored 58%. Brand / Model missing on the Found Report.</td>
+              </tr>
+              <tr>
+                <td>23 Aug, 09:40</td>
+                <td><span class="event">Owner notified</span></td>
+                <td>a.ceniza@lostfound.app</td>
+                <td>Emailed the owner. Asked what the damage was.</td>
+              </tr>
+              <tr data-show-for="claimed" hidden>
+                <td>24 Aug, 15:20</td>
+                <td><span class="event">Item claimed</span></td>
+                <td>a.ceniza@lostfound.app</td>
+                <td>
+                  Owner named the bent rib. Photo ID, Reference Number and
+                  Contact Detail checked.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
