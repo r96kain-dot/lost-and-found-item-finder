@@ -73,16 +73,22 @@ function initReportForm() {
   applyContactMethod();
 }
 
-// --- Report Submitted: show the parts for ?type=lost or ?type=found ----------
+// --- Show parts of a page for one URL value ----------------------------------
+// Elements with data-show-for only show when the URL value matches. The value
+// is read from ?type= unless <body data-show-param> names another one, and
+// <body data-show-default> sets it when the URL has none.
+// Report Submitted: ?type=lost / found. Moderator View: ?status=owner-notified / claimed.
 
-function initReportSubmitted() {
+function initShowFor() {
   const parts = document.querySelectorAll("[data-show-for]");
   if (parts.length === 0) return;
 
-  const type = new URLSearchParams(window.location.search).get("type");
+  const { showParam = "type", showDefault = null } = document.body.dataset;
+  const value =
+    new URLSearchParams(window.location.search).get(showParam) || showDefault;
 
   parts.forEach((part) => {
-    part.hidden = part.dataset.showFor !== type;
+    part.hidden = part.dataset.showFor !== value;
   });
 }
 
@@ -100,6 +106,104 @@ function initCheckReport() {
   });
 }
 
+// --- Moderator Log In ---------------------------------------------------------
+
+function initLogin() {
+  const form = document.getElementById("login-form");
+  if (!form) return;
+
+  // The browser checks the required fields first. Nothing is sent: a GET form
+  // would put the password in the URL. The backend replaces this at integration.
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    window.location.href = "matches.html";
+  });
+
+  const forgot = document.getElementById("forgot-password");
+  const forgotHelp = document.getElementById("forgot-password-help");
+  forgot.addEventListener("click", () => {
+    forgotHelp.hidden = !forgotHelp.hidden;
+    forgot.setAttribute("aria-expanded", String(!forgotHelp.hidden));
+  });
+}
+
+// --- Potential Matches: search and Match Status filter -----------------------
+
+// "#1 000" and "1000" both become "1000".
+function normaliseReference(value) {
+  return value.replace(/[#\s]/g, "");
+}
+
+function initMatchFilter() {
+  const table = document.getElementById("matches-table");
+  if (!table) return;
+
+  const search = document.getElementById("match-search");
+  const status = document.getElementById("match-status");
+  const rows = table.querySelectorAll("tbody tr[data-status]");
+  const empty = document.getElementById("matches-empty");
+
+  // Each row lists both Reference Numbers in data-references.
+  function applyFilter() {
+    const query = normaliseReference(search.value);
+    let shown = 0;
+
+    rows.forEach((row) => {
+      const matchesSearch =
+        query === "" ||
+        row.dataset.references.split(" ").some((ref) => ref.includes(query));
+      const matchesStatus =
+        status.value === "all" || row.dataset.status === status.value;
+      row.hidden = !(matchesSearch && matchesStatus);
+      if (!row.hidden) shown += 1;
+    });
+
+    empty.hidden = shown > 0;
+  }
+
+  search.addEventListener("input", applyFilter);
+  status.addEventListener("change", applyFilter);
+}
+
+// --- Verify Claimant ------------------------------------------------------------
+
+// Placeholder details for Lost Report #1009 until the backend checks the real
+// Report. Contact Details are compared without spaces and ignoring case.
+const PLACEHOLDER_CLAIM = { reference: "1009", contact: "m.reyes@ac.nz" };
+
+function initVerifyClaimant() {
+  const form = document.getElementById("verify-form");
+  if (!form) return;
+
+  const reference = document.getElementById("claim-reference");
+  const contact = document.getElementById("claim-contact");
+  const error = document.getElementById("verify-error");
+
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    const referenceOk =
+      normaliseReference(reference.value) === PLACEHOLDER_CLAIM.reference;
+    const contactOk =
+      contact.value.replace(/\s/g, "").toLowerCase() ===
+      PLACEHOLDER_CLAIM.contact;
+
+    if (referenceOk && contactOk) {
+      window.location.href = "view.html?status=claimed";
+    } else {
+      error.hidden = false;
+    }
+  });
+
+  // Hide the error again once the Moderator starts correcting the details.
+  form.addEventListener("input", () => {
+    error.hidden = true;
+  });
+}
+
 initReportForm();
-initReportSubmitted();
+initShowFor();
 initCheckReport();
+initLogin();
+initMatchFilter();
+initVerifyClaimant();

@@ -1,0 +1,575 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Potential Matches · Lost & Found Item Finder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    />
+    <link rel="stylesheet" href="../style.css" />
+    <script src="../app.js" defer></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-header__inner">
+        <div class="site-header__start">
+          <a class="brand" href="matches.html">
+            <span class="brand__logo" aria-hidden="true">LF</span>
+            <span class="brand__name">Lost &amp; Found Item Finder</span>
+          </a>
+          <span class="site-header__badge">Moderator</span>
+        </div>
+        <div class="site-header__end">
+          <nav class="site-nav" aria-label="Moderator">
+            <a class="site-nav__link" href="matches.html" aria-current="page"
+              >Potential Matches</a
+            >
+          </nav>
+          <!-- Nothing to sign out of yet; the backend ends the session at integration. -->
+          <a class="button button--on-primary" href="login.html"
+            ><svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <path d="M16 17l5-5-5-5M21 12H9" /></svg
+            >Log out</a
+          >
+          <!-- The signed-in Moderator's initials. Display only. -->
+          <span class="avatar"
+            ><span aria-hidden="true">AC</span
+            ><span class="visually-hidden"
+              >Signed in as a.ceniza@lostfound.app</span
+            ></span
+          >
+        </div>
+      </div>
+    </header>
+
+    <main class="page page--moderator">
+      <h1 class="mod-heading">Potential Matches</h1>
+
+      <!-- Placeholder counts until the backend sends real ones. -->
+      <ul class="stat-cards" role="list">
+        <li class="card stat-card stat-card--amber">
+          <span class="stat-card__number">4</span>Awaiting review
+        </li>
+        <li class="card stat-card stat-card--lost">
+          <span class="stat-card__number">1</span>Waiting over 3 days
+        </li>
+        <li class="card stat-card stat-card--primary">
+          <span class="stat-card__number">1</span>Owner notified
+        </li>
+        <li class="card stat-card stat-card--found">
+          <span class="stat-card__number">10</span>Claimed
+        </li>
+      </ul>
+
+      <div class="match-toolbar">
+        <div class="search">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            aria-hidden="true"
+          >
+            <circle cx="11" cy="11" r="7" />
+            <path d="M20 20l-4-4" />
+          </svg>
+          <label class="visually-hidden" for="match-search"
+            >Search a reference number</label
+          >
+          <input
+            class="input"
+            id="match-search"
+            type="search"
+            placeholder="Search a reference number"
+          />
+        </div>
+        <div class="status-filter">
+          <label for="match-status">Status</label>
+          <select class="select" id="match-status">
+            <option value="all">All</option>
+            <option value="needs-review">Needs review</option>
+            <option value="owner-notified">Owner notified</option>
+            <option value="claimed">Claimed</option>
+            <option value="not-a-match">Not a match</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Placeholder rows. Every Review button opens the same placeholder match
+           (#1000 / #1031) and every View button the same case (#1009 / #1008)
+           until the backend sends real ones. -->
+      <div class="table-wrap">
+        <table class="table matches-table" id="matches-table">
+          <thead>
+            <tr>
+              <th scope="col">Lost Report</th>
+              <th scope="col">Found Report</th>
+              <th scope="col">Match</th>
+              <th scope="col" aria-sort="descending">
+                Waiting <span aria-hidden="true">↓</span>
+              </th>
+              <th scope="col">Status</th>
+              <th scope="col">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-status="needs-review" data-references="1000 1031">
+              <td>
+                <div class="match-report">
+                  <span class="thumb" role="img" aria-label="Photo"
+                    ><svg
+                      class="photo-icon"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <rect x="3" y="4" width="18" height="16" rx="2" />
+                      <circle cx="9" cy="10" r="2" />
+                      <path d="M21 16l-5-5-9 9" /></svg
+                  ></span>
+                  <div>
+                    <strong>Wallet / Purse — Black</strong
+                    ><span>#1000 · Level 2 — Library</span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="match-report">
+                  <span class="thumb" role="img" aria-label="Photo"
+                    ><svg
+                      class="photo-icon"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <rect x="3" y="4" width="18" height="16" rx="2" />
+                      <circle cx="9" cy="10" r="2" />
+                      <path d="M21 16l-5-5-9 9" /></svg
+                  ></span>
+                  <div>
+                    <strong>Wallet / Purse — Black</strong
+                    ><span>#1031 · Site Office A</span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="score score--high" style="--score: 78%">78%</span>
+              </td>
+              <td>2 days</td>
+              <td>
+                <span class="badge badge--status badge--needs-review"
+                  >Needs review</span
+                >
+              </td>
+              <td>
+                <a
+                  class="button button--primary button--small"
+                  href="review-match.html"
+                  >Review</a
+                >
+              </td>
+            </tr>
+            <tr data-status="needs-review" data-references="1023 1028">
+              <td>
+                <div class="match-report">
+                  <span
+                    class="thumb thumb--none"
+                    role="img"
+                    aria-label="No photo"
+                  ></span>
+                  <div>
+                    <strong>Card (ID / transit) — Blue</strong
+                    ><span>#1023 · Level 1 — Main entrance</span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="match-report">
+                  <span class="thumb" role="img" aria-label="Photo"
+                    ><svg
+                      class="photo-icon"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <rect x="3" y="4" width="18" height="16" rx="2" />
+                      <circle cx="9" cy="10" r="2" />
+                      <path d="M21 16l-5-5-9 9" /></svg
+                  ></span>
+                  <div>
+                    <strong>Card (ID / transit) — Blue</strong
+                    ><span>#1028 · Site Office A</span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="score score--mid" style="--score: 64%">64%</span>
+              </td>
+              <td>1 day</td>
+              <td>
+                <span class="badge badge--status badge--needs-review"
+                  >Needs review</span
+                >
+              </td>
+              <td>
+                <a
+                  class="button button--primary button--small"
+                  href="review-match.html"
+                  >Review</a
+                >
+              </td>
+            </tr>
+            <tr data-status="needs-review" data-references="1002 1035">
+              <td>
+                <div class="match-report">
+                  <span class="thumb" role="img" aria-label="Photo"
+                    ><svg
+                      class="photo-icon"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <rect x="3" y="4" width="18" height="16" rx="2" />
+                      <circle cx="9" cy="10" r="2" />
+                      <path d="M21 16l-5-5-9 9" /></svg
+                  ></span>
+                  <div>
+                    <strong>Keys — Silver</strong
+                    ><span>#1002 · Block C — Car park</span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="match-report">
+                  <span class="thumb" role="img" aria-label="Photo"
+                    ><svg
+                      class="photo-icon"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <rect x="3" y="4" width="18" height="16" rx="2" />
+                      <circle cx="9" cy="10" r="2" />
+                      <path d="M21 16l-5-5-9 9" /></svg
+                  ></span>
+                  <div>
+                    <strong>Keys — Red</strong
+                    ><span>#1035 · Site Office B</span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="score score--mid" style="--score: 45%">45%</span>
+              </td>
+              <td>5 hours</td>
+              <td>
+                <span class="badge badge--status badge--needs-review"
+                  >Needs review</span
+                >
+              </td>
+              <td>
+                <a
+                  class="button button--primary button--small"
+                  href="review-match.html"
+                  >Review</a
+                >
+              </td>
+            </tr>
+            <tr data-status="needs-review" data-references="1011 1039">
+              <td>
+                <div class="match-report">
+                  <span
+                    class="thumb thumb--none"
+                    role="img"
+                    aria-label="No photo"
+                  ></span>
+                  <div>
+                    <strong>Bag / Backpack — Grey</strong
+                    ><span>#1011 · Level 1 — Student lounge</span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="match-report">
+                  <span class="thumb" role="img" aria-label="Photo"
+                    ><svg
+                      class="photo-icon"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <rect x="3" y="4" width="18" height="16" rx="2" />
+                      <circle cx="9" cy="10" r="2" />
+                      <path d="M21 16l-5-5-9 9" /></svg
+                  ></span>
+                  <div>
+                    <strong>Bag / Backpack — Black</strong
+                    ><span>#1039 · Site Office A</span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="score score--mid" style="--score: 58%">58%</span>
+              </td>
+              <td>1 hour</td>
+              <td>
+                <span class="badge badge--status badge--needs-review"
+                  >Needs review</span
+                >
+              </td>
+              <td>
+                <a
+                  class="button button--primary button--small"
+                  href="review-match.html"
+                  >Review</a
+                >
+              </td>
+            </tr>
+            <tr data-status="owner-notified" data-references="1009 1008">
+              <td>
+                <div class="match-report">
+                  <span
+                    class="thumb thumb--none"
+                    role="img"
+                    aria-label="No photo"
+                  ></span>
+                  <div>
+                    <strong>Umbrella — Black</strong
+                    ><span>#1009 · Level 2 — Lecture hall B</span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="match-report">
+                  <span class="thumb" role="img" aria-label="Photo"
+                    ><svg
+                      class="photo-icon"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <rect x="3" y="4" width="18" height="16" rx="2" />
+                      <circle cx="9" cy="10" r="2" />
+                      <path d="M21 16l-5-5-9 9" /></svg
+                  ></span>
+                  <div>
+                    <strong>Umbrella — Black</strong
+                    ><span>#1008 · Site Office A</span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="score score--mid" style="--score: 58%">58%</span>
+              </td>
+              <td>
+                <span class="waiting--late"
+                  >4 days <span aria-hidden="true">!</span
+                  ><span class="visually-hidden">(over 3 days)</span></span
+                >
+              </td>
+              <td>
+                <span class="badge badge--status badge--owner-notified"
+                  >Owner notified</span
+                >
+              </td>
+              <td>
+                <a
+                  class="button button--secondary button--small"
+                  href="view.html?status=owner-notified"
+                  >View</a
+                >
+              </td>
+            </tr>
+            <tr
+              data-status="claimed"
+              data-references="1014 1019"
+              class="is-closed"
+            >
+              <td>
+                <div class="match-report">
+                  <span
+                    class="thumb thumb--none"
+                    role="img"
+                    aria-label="No photo"
+                  ></span>
+                  <div>
+                    <strong>Water bottle — Green</strong
+                    ><span>#1014 · Gym</span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="match-report">
+                  <span class="thumb" role="img" aria-label="Photo"
+                    ><svg
+                      class="photo-icon"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <rect x="3" y="4" width="18" height="16" rx="2" />
+                      <circle cx="9" cy="10" r="2" />
+                      <path d="M21 16l-5-5-9 9" /></svg
+                  ></span>
+                  <div>
+                    <strong>Water bottle — Green</strong
+                    ><span>#1019 · Site Office B</span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="score score--closed" style="--score: 42%"
+                  >42%</span
+                >
+              </td>
+              <td><span class="waiting--closed">Closed 2 days ago</span></td>
+              <td>
+                <span class="badge badge--status badge--claimed">Claimed</span>
+              </td>
+              <td>
+                <a
+                  class="button button--secondary button--small"
+                  href="view.html?status=claimed"
+                  >View</a
+                >
+              </td>
+            </tr>
+            <tr
+              data-status="not-a-match"
+              data-references="1004 1012"
+              class="is-closed"
+            >
+              <td>
+                <div class="match-report">
+                  <span class="thumb" role="img" aria-label="Photo"
+                    ><svg
+                      class="photo-icon"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <rect x="3" y="4" width="18" height="16" rx="2" />
+                      <circle cx="9" cy="10" r="2" />
+                      <path d="M21 16l-5-5-9 9" /></svg
+                  ></span>
+                  <div>
+                    <strong>Notebook / Book — Blue</strong
+                    ><span>#1004 · Level 1 — Cafeteria</span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="match-report">
+                  <span
+                    class="thumb thumb--none"
+                    role="img"
+                    aria-label="No photo"
+                  ></span>
+                  <div>
+                    <strong>Notebook / Book — Black</strong
+                    ><span>#1012 · Site Office B</span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="score score--closed" style="--score: 33%"
+                  >33%</span
+                >
+              </td>
+              <td><span class="waiting--closed">Closed 3 days ago</span></td>
+              <td>
+                <span class="badge badge--status badge--not-a-match"
+                  >Not a match</span
+                >
+              </td>
+              <td>
+                <a
+                  class="button button--secondary button--small"
+                  href="view.html?status=claimed"
+                  >View</a
+                >
+              </td>
+            </tr>
+            <tr id="matches-empty" hidden>
+              <td class="matches-empty" colspan="6">
+                No Potential Matches fit this search.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </body>
+</html>

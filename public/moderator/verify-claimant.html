@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verify Claimant · Lost & Found Item Finder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    />
+    <link rel="stylesheet" href="../style.css" />
+    <script src="../app.js" defer></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-header__inner">
+        <div class="site-header__start">
+          <a class="brand" href="matches.html">
+            <span class="brand__logo" aria-hidden="true">LF</span>
+            <span class="brand__name">Lost &amp; Found Item Finder</span>
+          </a>
+          <span class="site-header__badge">Moderator</span>
+        </div>
+        <div class="site-header__end">
+          <nav class="site-nav" aria-label="Moderator">
+            <a class="site-nav__link" href="matches.html">Potential Matches</a>
+          </nav>
+          <!-- Nothing to sign out of yet; the backend ends the session at integration. -->
+          <a class="button button--on-primary" href="login.html"
+            ><svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <path d="M16 17l5-5-5-5M21 12H9" /></svg
+            >Log out</a
+          >
+          <!-- The signed-in Moderator's initials. Display only. -->
+          <span class="avatar"
+            ><span aria-hidden="true">AC</span
+            ><span class="visually-hidden"
+              >Signed in as a.ceniza@lostfound.app</span
+            ></span
+          >
+        </div>
+      </div>
+    </header>
+
+    <main class="page page--moderator">
+      <a class="back-link" href="view.html?status=owner-notified"
+        ><svg
+          width="16"
+          height="16"
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M10 3L5 8l5 5" /></svg
+        >Umbrella — Black</a
+      >
+      <div class="mod-heading">
+        <h1>Verify Claimant</h1>
+        <p>Check the Claimant in person before the item leaves the counter.</p>
+      </div>
+
+      <div class="verify">
+        <section
+          class="card card--padded verify__case"
+          aria-labelledby="case-title"
+        >
+          <h2 id="case-title">This match</h2>
+          <dl class="info-rows">
+            <dt>Item</dt>
+            <dd>Umbrella — Black</dd>
+            <dt>Lost Report</dt>
+            <dd>#1009</dd>
+            <dt>Found Report</dt>
+            <dd>#1008</dd>
+            <dt>Site Office</dt>
+            <dd>Site Office A — Main Reception</dd>
+          </dl>
+          <ol class="verify__steps">
+            <li>See their photo ID.</li>
+            <li>Ask for the Reference Number of their Lost Report.</li>
+            <li>Ask for the phone number or email they gave on it.</li>
+          </ol>
+        </section>
+
+        <!-- The details are checked in app.js against placeholder Lost Report
+             #1009 until the backend checks the real one. Nothing is saved. -->
+        <form
+          id="verify-form"
+          class="card card--padded verify__form"
+          aria-labelledby="claimant-title"
+        >
+          <h2 id="claimant-title">Claimant’s details</h2>
+          <div class="field">
+            <label class="field__label" for="claim-reference"
+              >Reference Number</label
+            >
+            <input
+              class="input"
+              id="claim-reference"
+              name="reference_code"
+              type="text"
+              placeholder="#1000"
+              aria-describedby="claim-reference-help"
+              required
+            />
+            <p class="field__help" id="claim-reference-help">
+              From their Lost Report.
+            </p>
+          </div>
+          <div class="field">
+            <label class="field__label" for="claim-contact"
+              >Phone number or email</label
+            >
+            <input
+              class="input"
+              id="claim-contact"
+              name="contact_detail"
+              type="text"
+              placeholder="021 234 5678"
+              aria-describedby="claim-contact-help"
+              required
+            />
+            <p class="field__help" id="claim-contact-help">
+              The one they gave on the Lost Report.
+            </p>
+          </div>
+          <label class="checkbox">
+            <input type="checkbox" name="id_checked" required />
+            I have seen their photo ID and it matches the Claimant.
+          </label>
+
+          <div
+            class="banner banner--error"
+            id="verify-error"
+            role="alert"
+            hidden
+          >
+            <p class="banner__text">
+              These details don’t match Lost Report #1009. Check them with the
+              Claimant before releasing the item.
+            </p>
+          </div>
+
+          <div class="verify__actions">
+            <a
+              class="button button--secondary"
+              href="view.html?status=owner-notified"
+              >Cancel</a
+            >
+            <button class="button button--found" type="submit">
+              Release item
+            </button>
+          </div>
+        </form>
+      </div>
+    </main>
+  </body>
+</html>
