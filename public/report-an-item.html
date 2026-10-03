@@ -85,7 +85,7 @@
               <input
                 class="choice__input"
                 type="radio"
-                name="type"
+                name="report_type"
                 value="lost"
                 required
               />
@@ -95,7 +95,7 @@
               <input
                 class="choice__input"
                 type="radio"
-                name="type"
+                name="report_type"
                 value="found"
               />
               I found an item
@@ -174,7 +174,13 @@
                   >Date</span
                 ><span class="required">*</span></label
               >
-              <input class="input" id="date" name="date" type="date" required />
+              <input
+                class="input"
+                id="date"
+                name="item_date"
+                type="date"
+                required
+              />
             </div>
 
             <div class="field">
@@ -229,7 +235,7 @@
                 <input
                   class="input"
                   id="contact"
-                  name="contact"
+                  name="contact_detail"
                   type="tel"
                   autocomplete="tel"
                   placeholder="021 234 5678"

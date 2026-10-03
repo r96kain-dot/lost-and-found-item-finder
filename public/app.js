@@ -23,7 +23,7 @@ function initReportForm() {
 
   // Changes the labels for Lost or Found, and only shows Hand-in location for Found.
   function applyReportType() {
-    const checked = form.querySelector('input[name="type"]:checked');
+    const checked = form.querySelector('input[name="report_type"]:checked');
     const type = checked ? checked.value : null;
 
     typeLabels.forEach((label) => {
@@ -58,7 +58,7 @@ function initReportForm() {
   }
 
   form.addEventListener("change", (event) => {
-    if (event.target.name === "type") applyReportType();
+    if (event.target.name === "report_type") applyReportType();
     if (event.target.name === "contact_method") applyContactMethod();
   });
 
@@ -76,14 +76,15 @@ function initReportForm() {
 
 // --- Show or hide parts of a page from the URL -------------------------------
 
-// Shows elements whose data-show-for matches the URL, e.g. ?type=found on
+// Shows elements whose data-show-for matches the URL, e.g. ?report_type=found on
 // Report Submitted or ?status=claimed on the moderator View page.
 function initShowFor() {
   const parts = document.querySelectorAll("[data-show-for]");
   if (parts.length === 0) return;
 
   // The page can pick a different URL key or a default value on <body>.
-  const { showParam = "type", showDefault = null } = document.body.dataset;
+  const { showParam = "report_type", showDefault = null } =
+    document.body.dataset;
   const value =
     new URLSearchParams(window.location.search).get(showParam) || showDefault;
 
