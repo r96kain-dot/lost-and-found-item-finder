@@ -68,8 +68,7 @@
         <h1>Report an Item</h1>
       </div>
 
-      <!-- Nothing is saved yet. The browser checks required fields, then this
-           opens the confirmation page with ?type=lost or ?type=found. -->
+      <!-- Nothing is saved yet. Submitting opens the confirmation page. -->
       <form
         id="report-form"
         class="card report-form"
@@ -168,7 +167,7 @@
               </select>
             </div>
 
-            <!-- Labels with data-label-lost / data-label-found change with the Report type. -->
+            <!-- These labels change with Lost or Found (see app.js). -->
             <div class="field">
               <label class="field__label" for="date"
                 ><span data-label-lost="Date lost" data-label-found="Date found"
@@ -296,9 +295,7 @@
               </div>
             </div>
 
-            <!-- Site Office: only for Found reports. Sits in the right column so picking
-                 Found doesn't make the page taller. Hidden and disabled until
-                 "I found an item" is picked, so it never blocks a Lost report. -->
+            <!-- Hand-in location: only shown for Found reports. -->
             <div class="field" id="hand-in-field" hidden>
               <label class="field__label" for="site-office"
                 >Hand-in location<span class="required">*</span></label

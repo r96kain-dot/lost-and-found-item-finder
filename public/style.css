@@ -90,11 +90,8 @@
   box-sizing: border-box;
 }
 
-/* Desktop pages fit on one screen with no scrolling. Every size is in rem, and
-   the root font size grows with the viewport, so the whole layout scales up to
-   use bigger screens. 16px is the size for a 1440 x 900 screen (about 780px of
-   page); it grows by height (2vh) or width (1.11vw), whichever is smaller, up
-   to 20px. */
+/* The layout scales with the screen so desktop pages fit without scrolling.
+   16px at 1440 x 900, growing to 20px on bigger screens. */
 html {
   font-size: clamp(16px, min(2vh, 1.11vw), 20px);
 }
@@ -159,7 +156,7 @@ legend {
   padding: 0;
 }
 
-/* Elements hidden with the hidden attribute stay hidden even if a class sets display. */
+/* Keeps hidden elements hidden even if a class sets display. */
 [hidden] {
   display: none !important;
 }
@@ -829,7 +826,7 @@ legend {
   padding: 1.25rem var(--space-4) 1.125rem;
 }
 
-/* Mobile only. On desktop it still labels the list through aria-labelledby. */
+/* Only shown on mobile. On desktop it still labels the list. */
 .progress__title {
   display: none;
 }
@@ -1089,9 +1086,8 @@ legend {
   background: var(--color-text-faint);
 }
 
-/* Data table, used for Potential Matches and the Activity Log. position:
-   relative keeps visually hidden text inside the scroll box, so a wide table
-   never widens the page. */
+/* Table for Potential Matches and the Activity Log. position: relative stops
+   hidden text from making the page wider. */
 .table-wrap {
   position: relative;
   overflow-x: auto;
@@ -1307,7 +1303,7 @@ legend {
   margin-top: auto;
 }
 
-/* A large line of text, not a heading, so the page's first heading is the h1. */
+/* Big text but not a heading, so the h1 is still the first heading. */
 .login__headline {
   max-width: 16ch;
   font-size: var(--font-size-2xl);
@@ -1742,12 +1738,9 @@ legend {
 
 /* --- Mobile (below 900px) ------------------------------------------------- */
 
-/* Public pages: one column, the page title in the header, and the header nav
-   moved to a tab bar at the bottom (.site-nav--tab-bar). Between 600px and
-   900px (tablets) the content stays centred and no wider than
-   --mobile-max-width. Pages fit on one phone screen where they can, and scroll
-   normally where they can't (small phones, landscape). Moderator pages keep
-   their header and reflow; their rules are in the next section. */
+/* Public pages on mobile: one column, page title in the header and a tab bar
+   at the bottom. Content is capped at 40rem on tablets. Moderator pages have
+   their own rules below. */
 @media (max-width: 900px) {
   :root {
     --header-height: 3.25rem;
@@ -1761,8 +1754,7 @@ legend {
     font-size: 16px;
   }
 
-  /* Room for the tab bar, so it never covers the end of the page, and scroll
-     padding so a focused field never scrolls under it. */
+  /* Leave room for the tab bar so it doesn't cover the page or a focused field. */
   html:has(.site-nav--tab-bar) {
     scroll-padding-bottom: calc(
       var(--tab-bar-height) + env(safe-area-inset-bottom) + var(--space-2)
@@ -1773,8 +1765,8 @@ legend {
     padding-bottom: calc(var(--tab-bar-height) + env(safe-area-inset-bottom));
   }
 
-  /* Hidden on screen but still read by screen readers (as .visually-hidden):
-     the full app name and the in-page headings, which the header title replaces. */
+  /* Hidden on screen but still read by screen readers. The header title
+     replaces these on mobile. */
   .brand__name,
   .page__header,
   .find-report h2 {
@@ -1841,7 +1833,7 @@ legend {
     display: block;
   }
 
-  /* The tab bar is white, so it goes back to the teal ring, drawn inside. */
+  /* The tab bar is white, so use the teal focus ring again. */
   .site-nav--tab-bar .site-nav__link:focus-visible {
     box-shadow: inset var(--focus-ring);
   }
@@ -1921,8 +1913,8 @@ legend {
     font-size: var(--font-size-xs);
   }
 
-  /* Submit first, then the notice. Cancel is hidden: a full-width reset button
-     beside Submit is easy to tap by mistake and clears the whole form. */
+  /* Submit first, then the notice. Cancel is hidden because it's easy to tap
+     by mistake and clears the whole form. */
   .report-form__footer {
     flex-direction: column;
     align-items: stretch;
@@ -2029,8 +2021,7 @@ legend {
     font-size: var(--font-size-sm);
   }
 
-  /* Ready-to-collect card first, then Progress, then the details. The cards
-     have no links or buttons, so the tab order doesn't change. */
+  /* Ready-to-collect card goes above the progress on mobile. */
   .your-details {
     order: 2;
   }
@@ -2109,9 +2100,7 @@ legend {
 
 /* --- Moderator pages below 900px ------------------------------------------ */
 
-/* Moderator screens are desktop optimised but stay usable on smaller screens:
-   panels and the two reports stack, and wide tables scroll sideways inside
-   their own box. */
+/* Moderator pages on smaller screens: panels stack and tables scroll sideways. */
 @media (max-width: 900px) {
   .page--moderator {
     max-width: var(--page-max-width);
@@ -2132,8 +2121,7 @@ legend {
     white-space: nowrap;
   }
 
-  /* Tables keep their desktop width and scroll inside .table-wrap (browsers
-     ignore min-width on tables, so the width is fixed here). */
+  /* Tables keep their width and scroll inside .table-wrap. */
   .matches-table {
     width: max-content;
   }
@@ -2217,7 +2205,7 @@ legend {
   }
 }
 
-/* Phones: the MODERATOR badge goes so the nav and Log out fit on one line. */
+/* Hide the MODERATOR badge on phones so the nav fits on one line. */
 @media (max-width: 600px) {
   .site-header__badge {
     display: none;
