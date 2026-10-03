@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Report an Item · Lost & Found Item Finder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-header__inner">
+        <a class="brand" href="report-an-item.html">
+          <span class="brand__logo" aria-hidden="true">LF</span>
+          <span class="brand__name">Lost &amp; Found Item Finder</span>
+        </a>
+        <nav class="site-nav" aria-label="Main">
+          <a
+            class="site-nav__link"
+            href="report-an-item.html"
+            aria-current="page"
+            >Report an item</a
+          >
+          <a class="site-nav__link" href="check-a-report.html"
+            >Check a report</a
+          >
+        </nav>
+      </div>
+    </header>
+
+    <main class="page">
+      <div class="page__header">
+        <h1>Report an Item</h1>
+      </div>
+
+      <!-- Nothing is saved yet. The browser checks required fields, then this
+           opens the confirmation page with ?type=lost or ?type=found. -->
+      <form
+        id="report-form"
+        class="card report-form"
+        method="get"
+        action="report-submitted.html"
+      >
+        <!-- Nothing is pre-selected on purpose, so the Reporter has to choose. -->
+        <fieldset class="report-type">
+          <legend class="field__label">
+            Report type<span class="required">*</span>
+          </legend>
+          <div class="report-type__options">
+            <label class="choice choice--lost">
+              <input
+                class="choice__input"
+                type="radio"
+                name="type"
+                value="lost"
+                required
+              />
+              I lost an item
+            </label>
+            <label class="choice choice--found">
+              <input
+                class="choice__input"
+                type="radio"
+                name="type"
+                value="found"
+              />
+              I found an item
+            </label>
+          </div>
+        </fieldset>
+
+        <div class="report-form__columns">
+          <div class="report-form__column">
+            <div class="field">
+              <label class="field__label" for="item-type"
+                >Item type<span class="required">*</span></label
+              >
+              <!-- TODO: confirm Item type options with Richard -->
+              <select class="select" id="item-type" name="item_type" required>
+                <option value="" disabled selected>Select item type</option>
+                <option>Wallet / Purse</option>
+                <option>Keys</option>
+                <option>Phone</option>
+                <option>Bag / Backpack</option>
+                <option>Card (ID / transit)</option>
+                <option>Water bottle</option>
+                <option>Umbrella</option>
+                <option>Laptop / Tablet</option>
+                <option>Headphones</option>
+                <option>Clothing</option>
+                <option>Notebook / Book</option>
+                <option>Other</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label class="field__label" for="brand-model">
+                Brand / Model<span class="field__optional">(optional)</span>
+              </label>
+              <input
+                class="input"
+                id="brand-model"
+                name="brand_model"
+                type="text"
+              />
+              <p class="field__help">
+                This narrows a match further than colour does.
+                <strong>Leave blank rather than guess.</strong>
+              </p>
+            </div>
+
+            <div class="field">
+              <label class="field__label" for="colour"
+                >Colour<span class="required">*</span></label
+              >
+              <!-- TODO: confirm Colour options with Richard -->
+              <select class="select" id="colour" name="colour" required>
+                <option value="" disabled selected>Select colour</option>
+                <option>Black</option>
+                <option>White</option>
+                <option>Grey</option>
+                <option>Silver</option>
+                <option>Brown</option>
+                <option>Red</option>
+                <option>Orange</option>
+                <option>Yellow</option>
+                <option>Green</option>
+                <option>Blue</option>
+                <option>Purple</option>
+                <option>Pink</option>
+                <option>Multi-coloured</option>
+                <option>Other</option>
+              </select>
+            </div>
+
+            <!-- Labels with data-label-lost / data-label-found change with the Report type. -->
+            <div class="field">
+              <label class="field__label" for="date"
+                ><span data-label-lost="Date lost" data-label-found="Date found"
+                  >Date</span
+                ><span class="required">*</span></label
+              >
+              <input class="input" id="date" name="date" type="date" required />
+            </div>
+
+            <div class="field">
+              <label class="field__label" for="area"
+                ><span
+                  data-label-lost="Where you lost it"
+                  data-label-found="Where it was found"
+                  >Where</span
+                ><span class="required">*</span></label
+              >
+              <select class="select" id="area" name="area" required>
+                <option value="" disabled selected>Select area</option>
+                <option>Level 1 — Main entrance</option>
+                <option>Level 1 — Cafeteria</option>
+                <option>Level 1 — Student lounge</option>
+                <option>Level 2 — Library</option>
+                <option>Level 2 — Lecture hall B</option>
+                <option>Block C — Car park</option>
+                <option>Gym</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="report-form__column">
+            <fieldset class="field">
+              <legend class="field__label">
+                How should we reach you?<span class="required">*</span>
+              </legend>
+              <div class="contact-picker">
+                <label class="segment">
+                  <input
+                    class="visually-hidden"
+                    type="radio"
+                    name="contact_method"
+                    value="phone"
+                    checked
+                  />
+                  Phone
+                </label>
+                <label class="segment">
+                  <input
+                    class="visually-hidden"
+                    type="radio"
+                    name="contact_method"
+                    value="email"
+                  />
+                  Email
+                </label>
+                <label class="visually-hidden" for="contact" id="contact-label"
+                  >Phone number</label
+                >
+                <input
+                  class="input"
+                  id="contact"
+                  name="contact"
+                  type="tel"
+                  autocomplete="tel"
+                  placeholder="021 234 5678"
+                  aria-describedby="contact-help"
+                  required
+                />
+              </div>
+              <p class="field__help" id="contact-help">
+                We use this only to tell you about a match, and to confirm it is
+                you when you check the report.
+              </p>
+            </fieldset>
+
+            <div class="field">
+              <label class="field__label" for="notes">
+                Notes for the moderator<span class="field__optional"
+                  >(optional)</span
+                >
+              </label>
+              <textarea
+                class="textarea"
+                id="notes"
+                name="notes"
+                placeholder="e.g. Brown leather interior. Bus card and a supermarket loyalty card inside, no ID."
+              ></textarea>
+            </div>
+
+            <div class="field">
+              <span class="field__label" id="photo-label">
+                Photo of the item<span class="field__optional">(optional)</span>
+              </span>
+              <div class="photo-upload">
+                <label class="photo-upload__box">
+                  <input
+                    class="visually-hidden"
+                    type="file"
+                    name="photo"
+                    accept="image/jpeg,image/png"
+                    aria-labelledby="photo-label"
+                    aria-describedby="photo-help"
+                  />
+                  <svg
+                    width="46"
+                    height="32"
+                    viewBox="0 0 46 32"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <rect
+                      x="1.5"
+                      y="1.5"
+                      width="43"
+                      height="29"
+                      rx="3"
+                      stroke="currentColor"
+                      stroke-width="3"
+                    />
+                    <circle cx="13" cy="10" r="3.5" fill="currentColor" />
+                    <path
+                      d="M4 27l12-11 8 7 6-5 12 9"
+                      stroke="currentColor"
+                      stroke-width="3"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  Add a photo
+                </label>
+                <p class="photo-upload__help" id="photo-help">
+                  One photo per report. JPG or PNG, max 5 MB.<br />
+                  <strong
+                    >Moderator only until your report is matched.<br />
+                    Never on the public listing.</strong
+                  >
+                </p>
+              </div>
+            </div>
+
+            <!-- Site Office: only for Found reports. Sits in the right column so picking
+                 Found doesn't make the page taller. Hidden and disabled until
+                 "I found an item" is picked, so it never blocks a Lost report. -->
+            <div class="field" id="hand-in-field" hidden>
+              <label class="field__label" for="site-office"
+                >Hand-in location<span class="required">*</span></label
+              >
+              <select
+                class="select"
+                id="site-office"
+                name="site_office"
+                required
+                disabled
+              >
+                <option value="" disabled selected>Select site office</option>
+                <option>Site Office A — Main Reception</option>
+                <option>Site Office B</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="report-form__footer">
+          <p class="report-form__notice">
+            Submitting gives you a reference number. Keep it with the contact
+            detail above; it is how you check this report later.<br />
+            Reports are kept for 90 days.
+          </p>
+          <div class="report-form__actions">
+            <button class="button button--secondary" type="reset">
+              Cancel
+            </button>
+            <button class="button button--primary" type="submit">
+              Submit report
+            </button>
+          </div>
+        </div>
+      </form>
+    </main>
+  </body>
+</html>

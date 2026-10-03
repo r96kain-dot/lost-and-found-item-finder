@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Report Submitted · Lost & Found Item Finder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-header__inner">
+        <a class="brand" href="report-an-item.html">
+          <span class="brand__logo" aria-hidden="true">LF</span>
+          <span class="brand__name">Lost &amp; Found Item Finder</span>
+        </a>
+        <nav class="site-nav" aria-label="Main">
+          <a class="site-nav__link" href="report-an-item.html"
+            >Report an item</a
+          >
+          <a class="site-nav__link" href="check-a-report.html"
+            >Check a report</a
+          >
+        </nav>
+      </div>
+    </header>
+
+    <!-- Not in the designs. Built from the same card, badge and button styles.
+         Elements with data-show-for only show when ?type= matches. -->
+    <main class="page">
+      <section class="card card--padded submitted">
+        <div class="submitted__heading">
+          <h1>Report submitted</h1>
+          <span class="badge badge--lost" data-show-for="lost" hidden
+            >Lost</span
+          >
+          <span class="badge badge--found" data-show-for="found" hidden
+            >Found</span
+          >
+        </div>
+        <p class="submitted__intro">
+          Thanks. A moderator will compare it with other reports.
+        </p>
+
+        <div class="submitted__reference">
+          <p>Your reference number</p>
+          <!-- Placeholder. The real Reference Number comes from the backend
+               (starts at 1000, +1 for each new report). -->
+          <p class="submitted__reference-number">#1000</p>
+          <p>
+            Keep it with the contact detail you gave (<strong
+              >021 234 5678</strong
+            >). Together they are how you check this report later.
+          </p>
+        </div>
+
+        <div class="submitted__hand-in" data-show-for="found" hidden>
+          <h2 class="submitted__hand-in-title">
+            Hand the item in at Site Office A
+          </h2>
+          <dl class="info-rows">
+            <dt>Where</dt>
+            <dd>Site Office A, Main Reception, Level 1</dd>
+            <dt>Open</dt>
+            <dd>Monday to Friday, 8:30am to 5:00pm</dd>
+            <dt>Bring</dt>
+            <dd>The item, and this reference number</dd>
+          </dl>
+        </div>
+
+        <div class="submitted__actions">
+          <a class="button button--primary" href="check-a-report.html"
+            >Check this report</a
+          >
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
