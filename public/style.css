@@ -636,6 +636,17 @@ legend {
   cursor: pointer;
 }
 
+/* The picture icon, sized per use (photo box, thumbnails). */
+.photo-icon {
+  width: 2rem;
+  height: 2rem;
+}
+
+.thumb .photo-icon {
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
 .photo-upload__box:hover {
   border-color: var(--color-primary);
 }
@@ -1910,13 +1921,13 @@ legend {
 
   .photo-upload__box {
     width: 7.5rem;
-    height: 3.5rem;
+    height: 4.25rem;
     font-size: var(--font-size-sm);
   }
 
-  .photo-upload__box svg {
-    width: 1.75rem;
-    height: auto;
+  .photo-upload__box .photo-icon {
+    width: 1.5rem;
+    height: 1.5rem;
   }
 
   .photo-upload__help {
