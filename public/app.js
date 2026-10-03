@@ -1,10 +1,11 @@
-// Lost & Found Item Finder: UI behaviour only.
-// Nothing is saved here and there is no custom validation; required fields use
-// the browser's built-in checks. app.js loads on every page, so each part checks
-// that its elements exist before doing anything.
+// Lost & Found Item Finder - page behaviour.
+// This file loads on every page, so each init function checks its elements
+// exist first. Nothing is saved yet (no backend), and required fields use the
+// browser's own checks.
 
-// --- Report an Item: Report type and contact method --------------------------
+// --- Report an Item ----------------------------------------------------------
 
+// Sets up the Report an Item form: Lost/Found labels and the Phone/Email toggle.
 function initReportForm() {
   const form = document.getElementById("report-form");
   if (!form) return;
@@ -15,11 +16,12 @@ function initReportForm() {
   const contactInput = document.getElementById("contact");
   const contactLabel = document.getElementById("contact-label");
 
-  // Remember the neutral label ("Date", "Where") for when nothing is selected.
+  // Save the default label text so it can come back after a reset.
   typeLabels.forEach((label) => {
     label.dataset.labelNeutral = label.textContent;
   });
 
+  // Changes the labels for Lost or Found, and only shows Hand-in location for Found.
   function applyReportType() {
     const checked = form.querySelector('input[name="type"]:checked');
     const type = checked ? checked.value : null;
@@ -30,13 +32,13 @@ function initReportForm() {
       else label.textContent = label.dataset.labelNeutral;
     });
 
-    // A Lost report has nothing to hand in. Disabling the select stops its
-    // required check from blocking the submit.
+    // Disabled so it doesn't block a Lost report from submitting.
     const isFound = type === "found";
     handInField.hidden = !isFound;
     handInSelect.disabled = !isFound;
   }
 
+  // Switches the contact input between phone and email.
   function applyContactMethod() {
     const method = form.querySelector(
       'input[name="contact_method"]:checked',
@@ -60,8 +62,7 @@ function initReportForm() {
     if (event.target.name === "contact_method") applyContactMethod();
   });
 
-  // Cancel resets the form. The reset event fires before the values change,
-  // so update the labels on the next tick.
+  // Reset fires before the values clear, so wait a tick before updating.
   form.addEventListener("reset", () => {
     setTimeout(() => {
       applyReportType();
@@ -73,16 +74,15 @@ function initReportForm() {
   applyContactMethod();
 }
 
-// --- Show parts of a page for one URL value ----------------------------------
-// Elements with data-show-for only show when the URL value matches. The value
-// is read from ?type= unless <body data-show-param> names another one, and
-// <body data-show-default> sets it when the URL has none.
-// Report Submitted: ?type=lost / found. Moderator View: ?status=owner-notified / claimed.
+// --- Show or hide parts of a page from the URL -------------------------------
 
+// Shows elements whose data-show-for matches the URL, e.g. ?type=found on
+// Report Submitted or ?status=claimed on the moderator View page.
 function initShowFor() {
   const parts = document.querySelectorAll("[data-show-for]");
   if (parts.length === 0) return;
 
+  // The page can pick a different URL key or a default value on <body>.
   const { showParam = "type", showDefault = null } = document.body.dataset;
   const value =
     new URLSearchParams(window.location.search).get(showParam) || showDefault;
@@ -92,8 +92,9 @@ function initShowFor() {
   });
 }
 
-// --- Check a Report: show the placeholder result -----------------------------
+// --- Check a Report ----------------------------------------------------------
 
+// Shows the placeholder result when "Find my report" is pressed.
 function initCheckReport() {
   const form = document.getElementById("find-report-form");
   const result = document.getElementById("check-result");
@@ -106,14 +107,14 @@ function initCheckReport() {
   });
 }
 
-// --- Moderator Log In ---------------------------------------------------------
+// --- Moderator Log In --------------------------------------------------------
 
+// Goes to Potential Matches after logging in, and toggles the forgot password tip.
 function initLogin() {
   const form = document.getElementById("login-form");
   if (!form) return;
 
-  // The browser checks the required fields first. Nothing is sent: a GET form
-  // would put the password in the URL. The backend replaces this at integration.
+  // Not sent anywhere yet, so the password never ends up in the URL.
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     window.location.href = "matches.html";
@@ -127,13 +128,14 @@ function initLogin() {
   });
 }
 
-// --- Potential Matches: search and Match Status filter -----------------------
+// --- Potential Matches -------------------------------------------------------
 
-// "#1 000" and "1000" both become "1000".
+// Removes # and spaces so "#1000" and "1000" match.
 function normaliseReference(value) {
   return value.replace(/[#\s]/g, "");
 }
 
+// Filters the table by Reference Number search and Match Status.
 function initMatchFilter() {
   const table = document.getElementById("matches-table");
   if (!table) return;
@@ -143,7 +145,7 @@ function initMatchFilter() {
   const rows = table.querySelectorAll("tbody tr[data-status]");
   const empty = document.getElementById("matches-empty");
 
-  // Each row lists both Reference Numbers in data-references.
+  // Hides rows that don't match, and shows a message if none are left.
   function applyFilter() {
     const query = normaliseReference(search.value);
     let shown = 0;
@@ -165,12 +167,12 @@ function initMatchFilter() {
   status.addEventListener("change", applyFilter);
 }
 
-// --- Verify Claimant ------------------------------------------------------------
+// --- Verify Claimant ---------------------------------------------------------
 
-// Placeholder details for Lost Report #1009 until the backend checks the real
-// Report. Contact Details are compared without spaces and ignoring case.
+// Placeholder details for Lost Report #1009 until the backend does the check.
 const PLACEHOLDER_CLAIM = { reference: "1009", contact: "m.reyes@ac.nz" };
 
+// Checks the Claimant's details and releases the item if they match.
 function initVerifyClaimant() {
   const form = document.getElementById("verify-form");
   if (!form) return;
@@ -195,7 +197,7 @@ function initVerifyClaimant() {
     }
   });
 
-  // Hide the error again once the Moderator starts correcting the details.
+  // Hide the error once they start fixing the details.
   form.addEventListener("input", () => {
     error.hidden = true;
   });
