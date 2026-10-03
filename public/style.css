@@ -75,6 +75,7 @@
   --page-gutter: 2.25rem;
   --column-gap: 2.375rem;
   --focus-ring: 0 0 0 3px rgba(15, 91, 116, 0.35);
+  --focus-ring-on-primary: 0 0 0 3px rgba(255, 255, 255, 0.85);
 }
 
 /* ==========================================================================
@@ -241,6 +242,11 @@ legend {
 
 .site-nav__link:hover {
   color: var(--color-on-primary);
+}
+
+/* The default teal focus ring can't be seen on the teal header. */
+.site-header :focus-visible {
+  box-shadow: var(--focus-ring-on-primary);
 }
 
 .site-nav__link[aria-current="page"] {
