@@ -76,6 +76,8 @@
   --column-gap: 2.375rem;
   --focus-ring: 0 0 0 3px rgba(15, 91, 116, 0.35);
   --focus-ring-on-primary: 0 0 0 3px rgba(255, 255, 255, 0.85);
+  --tab-bar-height: 3.75rem;
+  --mobile-max-width: 40rem;
 }
 
 /* ==========================================================================
@@ -222,9 +224,15 @@ legend {
   letter-spacing: -0.02em;
 }
 
-.brand__name {
+.brand__name,
+.brand__page {
   font-size: 1.375rem;
   font-weight: var(--font-weight-bold);
+}
+
+/* Mobile only: the page title shown in place of the full name. */
+.brand__page {
+  display: none;
 }
 
 .site-nav {
@@ -238,6 +246,11 @@ legend {
   color: rgba(255, 255, 255, 0.85);
   font-size: var(--font-size-md);
   text-decoration: none;
+}
+
+/* Mobile only: the icons above the tab bar labels. */
+.site-nav__icon {
+  display: none;
 }
 
 .site-nav__link:hover {
@@ -819,6 +832,11 @@ legend {
   padding: 1.25rem var(--space-4) 1.125rem;
 }
 
+/* Mobile only. On desktop it still labels the list through aria-labelledby. */
+.progress__title {
+  display: none;
+}
+
 .progress__steps {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -934,6 +952,369 @@ legend {
 
 /* ==========================================================================
    5. Media queries
-   Week 2: mobile layout (switch at about 900px), and the phone-landscape
-   "rotate your phone" overlay.
    ========================================================================== */
+
+/* --- Mobile (below 900px) ------------------------------------------------- */
+
+/* One column, the page title in the header, and the header nav moved to a tab
+   bar at the bottom. Between 600px and 900px (tablets) the content stays centred
+   and no wider than --mobile-max-width. Pages fit on one phone screen where
+   they can, and scroll normally where they can't (small phones, landscape). */
+@media (max-width: 900px) {
+  :root {
+    --header-height: 3.25rem;
+    --input-height: 2.5rem;
+    --field-gap: 0.5rem;
+    --page-gutter: 0.75rem;
+  }
+
+  /* A fixed 16px: inputs below 16px make iPhones zoom in when tapped. The
+     scroll padding stops a focused field from scrolling under the tab bar. */
+  html {
+    font-size: 16px;
+    scroll-padding-bottom: calc(
+      var(--tab-bar-height) + env(safe-area-inset-bottom) + var(--space-2)
+    );
+  }
+
+  /* Room for the tab bar, so it never covers the end of the page. */
+  body {
+    padding-bottom: calc(var(--tab-bar-height) + env(safe-area-inset-bottom));
+  }
+
+  /* Hidden on screen but still read by screen readers (as .visually-hidden):
+     the full app name and the in-page headings, which the header title replaces. */
+  .brand__name,
+  .page__header,
+  .find-report h2 {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+
+  /* --- Header and tab bar --- */
+
+  .site-header__inner {
+    max-width: var(--mobile-max-width);
+    padding: 0 var(--page-gutter);
+  }
+
+  .brand__page {
+    display: inline;
+    font-size: var(--font-size-lg);
+  }
+
+  .site-nav {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 10;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    height: calc(var(--tab-bar-height) + env(safe-area-inset-bottom));
+    padding-bottom: env(safe-area-inset-bottom);
+    border-top: 1px solid var(--color-border-light);
+    background: var(--color-surface);
+  }
+
+  .site-nav__link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 0;
+    border-bottom: 0;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+  }
+
+  .site-nav__link:hover {
+    color: var(--color-text);
+  }
+
+  .site-nav__link[aria-current="page"] {
+    color: var(--color-primary);
+  }
+
+  .site-nav__icon {
+    display: block;
+  }
+
+  /* The tab bar is white, so it goes back to the teal ring, drawn inside. */
+  .site-header .site-nav__link:focus-visible {
+    box-shadow: inset var(--focus-ring);
+  }
+
+  /* --- Shared components --- */
+
+  .page {
+    max-width: var(--mobile-max-width);
+    padding: var(--space-2) var(--page-gutter) var(--space-3);
+  }
+
+  .field__label {
+    margin-bottom: 2px;
+  }
+
+  .field__help {
+    margin-top: 2px;
+    font-size: var(--font-size-xs);
+  }
+
+  .textarea {
+    min-height: 3.25rem;
+  }
+
+  .button {
+    min-height: 2.75rem;
+  }
+
+  .info-rows {
+    grid-template-columns: 4.5rem 1fr;
+    font-size: var(--font-size-sm);
+  }
+
+  /* --- Report an Item --- */
+
+  .report-form {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .report-form__columns {
+    grid-template-columns: 1fr;
+  }
+
+  .report-form__column + .report-form__column {
+    margin-top: var(--field-gap);
+  }
+
+  .report-type__options {
+    column-gap: var(--space-2);
+  }
+
+  .choice {
+    font-size: var(--font-size-base);
+  }
+
+  .contact-picker {
+    grid-template-columns: auto auto 1fr;
+  }
+
+  .segment {
+    padding: 0 var(--space-3);
+  }
+
+  .photo-upload__box {
+    width: 7.5rem;
+    height: 3.5rem;
+    font-size: var(--font-size-sm);
+  }
+
+  .photo-upload__box svg {
+    width: 1.75rem;
+    height: auto;
+  }
+
+  .photo-upload__help {
+    margin-top: 0;
+    font-size: var(--font-size-xs);
+  }
+
+  /* Submit first, then the notice. Cancel is hidden: a full-width reset button
+     beside Submit is easy to tap by mistake and clears the whole form. */
+  .report-form__footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .report-form__notice {
+    order: 1;
+    font-size: var(--font-size-xs);
+    text-align: center;
+  }
+
+  .report-form__actions .button--secondary {
+    display: none;
+  }
+
+  .report-form__actions .button--primary {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* --- Report Submitted --- */
+
+  .card--padded {
+    padding: var(--space-4);
+  }
+
+  .submitted h1 {
+    font-size: var(--font-size-xl);
+  }
+
+  .submitted__reference {
+    margin-top: var(--space-4);
+    padding: var(--space-4);
+  }
+
+  .submitted__hand-in {
+    margin-top: var(--space-4);
+  }
+
+  .submitted__hand-in-title {
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--font-size-base);
+  }
+
+  .submitted__hand-in .info-rows {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .submitted__actions {
+    margin-top: var(--space-4);
+  }
+
+  .submitted__actions .button {
+    width: 100%;
+  }
+
+  /* --- Check a Report --- */
+
+  .check-layout {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+
+  /* The search card and "Lost your reference number?" join into one card. */
+  .check-sidebar {
+    gap: 0;
+  }
+
+  .find-report {
+    padding: var(--space-4) var(--space-4) var(--space-3);
+    border-bottom: 0;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+
+  .find-report .button {
+    min-height: 2.75rem;
+    margin-top: var(--space-3);
+  }
+
+  .lost-reference {
+    align-items: center;
+    padding: 0 var(--space-4) var(--space-3);
+    border-top: 0;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  }
+
+  .lost-reference h2 {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-regular);
+  }
+
+  .lost-reference p {
+    display: none;
+  }
+
+  .lost-reference a {
+    font-size: var(--font-size-sm);
+  }
+
+  .check-result__title {
+    font-size: var(--font-size-lg);
+  }
+
+  .check-result__meta {
+    font-size: var(--font-size-sm);
+  }
+
+  /* Ready-to-collect card first, then Progress, then the details. The cards
+     have no links or buttons, so the tab order doesn't change. */
+  .your-details {
+    order: 2;
+  }
+
+  .match-ready__title {
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--font-size-base);
+  }
+
+  .match-ready__body {
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--font-size-sm);
+  }
+
+  /* Collect from / Open / Bring as label + value rows. */
+  .match-ready__collect {
+    grid-template-columns: 1fr;
+    gap: var(--space-1);
+    margin-top: var(--space-2);
+    padding-top: var(--space-2);
+  }
+
+  .match-ready__collect > div {
+    display: grid;
+    grid-template-columns: 6.5rem 1fr;
+    gap: var(--space-3);
+  }
+
+  /* Progress: a vertical list, each step's line running down to the next. */
+  .progress {
+    order: 1;
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .progress__title {
+    display: block;
+    margin-bottom: var(--space-2);
+    font-size: var(--font-size-base);
+  }
+
+  .progress__steps {
+    grid-template-columns: 1fr;
+    row-gap: var(--space-2);
+  }
+
+  .progress__step {
+    flex-direction: row;
+    gap: var(--space-3);
+    font-size: var(--font-size-base);
+    text-align: left;
+  }
+
+  .progress__step:not(:last-child)::after {
+    top: 1.75rem;
+    left: 0.75rem;
+    width: 0.25rem;
+    height: var(--space-2);
+  }
+
+  .your-details {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .your-details__grid {
+    grid-template-columns: repeat(3, auto);
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-3);
+  }
+
+  .your-details__grid dt,
+  .your-details__grid dd {
+    font-size: var(--font-size-xs);
+    white-space: nowrap;
+  }
+}
