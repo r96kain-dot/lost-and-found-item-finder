@@ -1125,11 +1125,11 @@ legend {
 }
 
 /* Report card: one Lost or Found Report's details, used on Review and View. */
+/* Both cards stretch to the same height, even if one has an extra line. */
 .report-pair {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-5);
-  align-items: start;
 }
 
 .report-card {
