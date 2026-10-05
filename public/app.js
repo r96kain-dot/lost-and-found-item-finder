@@ -11,8 +11,6 @@ function initReportForm() {
   if (!form) return;
 
   const typeLabels = form.querySelectorAll("[data-label-lost]");
-  const handInField = document.getElementById("hand-in-field");
-  const handInSelect = document.getElementById("site-office");
   const contactInput = document.getElementById("contact");
   const contactLabel = document.getElementById("contact-label");
 
@@ -21,7 +19,7 @@ function initReportForm() {
     label.dataset.labelNeutral = label.textContent;
   });
 
-  // Changes the labels for Lost or Found, and only shows Hand-in location for Found.
+  // Changes the date and area labels for Lost or Found.
   function applyReportType() {
     const checked = form.querySelector('input[name="report_type"]:checked');
     const type = checked ? checked.value : null;
@@ -31,11 +29,6 @@ function initReportForm() {
       else if (type === "found") label.textContent = label.dataset.labelFound;
       else label.textContent = label.dataset.labelNeutral;
     });
-
-    // Disabled so it doesn't block a Lost report from submitting.
-    const isFound = type === "found";
-    handInField.hidden = !isFound;
-    handInSelect.disabled = !isFound;
   }
 
   // Switches the contact input between phone and email.
@@ -77,7 +70,7 @@ function initReportForm() {
 // --- Show or hide parts of a page from the URL -------------------------------
 
 // Shows elements whose data-show-for matches the URL, e.g. ?report_type=found on
-// Report Submitted or ?status=claimed on the moderator View page.
+// Report Submitted or ?status=collected on the moderator View page.
 function initShowFor() {
   const parts = document.querySelectorAll("[data-show-for]");
   if (parts.length === 0) return;
@@ -131,9 +124,9 @@ function initLogin() {
 
 // --- Potential Matches -------------------------------------------------------
 
-// Removes # and spaces so "#1000" and "1000" match.
+// Removes "LFIF-", # and spaces so "LFIF-482913" and "482913" match.
 function normaliseReference(value) {
-  return value.replace(/[#\s]/g, "");
+  return value.replace(/lfif|[#\s-]/gi, "");
 }
 
 // Filters the table by Reference Number search and Match Status.
@@ -170,8 +163,8 @@ function initMatchFilter() {
 
 // --- Verify Claimant ---------------------------------------------------------
 
-// Placeholder details for Lost Report #1009 until the backend does the check.
-const PLACEHOLDER_CLAIM = { reference: "1009", contact: "m.reyes@ac.nz" };
+// Placeholder details for Lost Report LFIF-205874 until the backend does the check.
+const PLACEHOLDER_CLAIM = { reference: "205874", contact: "m.reyes@ac.nz" };
 
 // Checks the Claimant's details and releases the item if they match.
 function initVerifyClaimant() {
@@ -192,7 +185,7 @@ function initVerifyClaimant() {
       PLACEHOLDER_CLAIM.contact;
 
     if (referenceOk && contactOk) {
-      window.location.href = "view.html?status=claimed";
+      window.location.href = "view.html?status=collected";
     } else {
       error.hidden = false;
     }

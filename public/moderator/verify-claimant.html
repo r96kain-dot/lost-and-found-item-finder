@@ -56,7 +56,7 @@
     </header>
 
     <main class="page page--moderator">
-      <a class="back-link" href="view.html?status=owner-notified"
+      <a class="back-link" href="view.html?status=approved"
         ><svg
           width="16"
           height="16"
@@ -86,11 +86,9 @@
             <dt>Item</dt>
             <dd>Umbrella — Black</dd>
             <dt>Lost Report</dt>
-            <dd>#1009</dd>
+            <dd>LFIF-205874</dd>
             <dt>Found Report</dt>
-            <dd>#1008</dd>
-            <dt>Site Office</dt>
-            <dd>Site Office A — Main Reception</dd>
+            <dd>LFIF-918342</dd>
           </dl>
           <ol class="verify__steps">
             <li>See their photo ID.</li>
@@ -99,7 +97,7 @@
           </ol>
         </section>
 
-        <!-- Checked against placeholder Report #1009 in app.js for now. -->
+        <!-- Checked against placeholder Report LFIF-205874 in app.js for now. -->
         <form
           id="verify-form"
           class="card card--padded verify__form"
@@ -115,7 +113,7 @@
               id="claim-reference"
               name="reference_code"
               type="text"
-              placeholder="#1000"
+              placeholder="LFIF-123456"
               aria-describedby="claim-reference-help"
               required
             />
@@ -152,15 +150,13 @@
             hidden
           >
             <p class="banner__text">
-              These details don’t match Lost Report #1009. Check them with the
-              Claimant before releasing the item.
+              These details don’t match Lost Report LFIF-205874. Check them with
+              the Claimant before releasing the item.
             </p>
           </div>
 
           <div class="verify__actions">
-            <a
-              class="button button--secondary"
-              href="view.html?status=owner-notified"
+            <a class="button button--secondary" href="view.html?status=approved"
               >Cancel</a
             >
             <button class="button button--found" type="submit">

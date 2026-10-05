@@ -1036,7 +1036,7 @@ legend {
   color: var(--color-text-muted);
 }
 
-/* Match Status badges: sentence case, unlike the LOST / FOUND badges. */
+/* Status badges: sentence case, unlike the LOST / FOUND badges. */
 .badge--status {
   letter-spacing: 0;
   text-transform: none;
@@ -1047,12 +1047,12 @@ legend {
   color: var(--color-amber);
 }
 
-.badge--owner-notified {
+.badge--approved {
   background: var(--color-primary-tint);
   color: var(--color-primary);
 }
 
-.badge--claimed {
+.badge--collected {
   background: var(--color-found-tint);
   color: var(--color-found);
 }
@@ -1566,7 +1566,7 @@ legend {
   font-size: var(--font-size-sm);
 }
 
-/* Closed rows (Claimed, Not a match) are muted so open ones stand out. */
+/* Closed rows (Collected, Not a match) are muted so open ones stand out. */
 .matches-table tr.is-closed td {
   background: var(--color-surface-muted);
 }
