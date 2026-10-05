@@ -1501,7 +1501,33 @@ legend {
 }
 
 .matches-table {
-  min-width: 56rem;
+  font-size: var(--font-size-sm);
+}
+
+/* Tighter cells so the whole table fits without scrolling on desktop. */
+.matches-table th,
+.matches-table td {
+  padding: var(--space-2) var(--space-3);
+}
+
+.matches-table th {
+  font-size: var(--font-size-xs);
+}
+
+.matches-table .thumb {
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+.matches-table .thumb .photo-icon {
+  width: 1.375rem;
+  height: 1.375rem;
+}
+
+.matches-table .badge {
+  padding: 2px var(--space-2);
+  font-size: var(--font-size-xs);
+  white-space: nowrap;
 }
 
 .match-report {
@@ -1514,21 +1540,16 @@ legend {
   display: block;
 }
 
-/* Names stay on one line; on narrow screens the table scrolls instead. */
-.match-report div {
-  white-space: nowrap;
-}
-
 .match-report span {
   color: var(--color-text-muted);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
 }
 
 /* Automatic Score bar. The width comes from --score on each row. */
 .score {
   display: grid;
   gap: var(--space-1);
-  width: 6rem;
+  width: 4.5rem;
   font-weight: var(--font-weight-bold);
 }
 
@@ -1563,7 +1584,7 @@ legend {
 
 .waiting--closed {
   color: var(--color-text-muted);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
 }
 
 /* Closed rows (Collected, Not a match) are muted so open ones stand out. */
@@ -1577,7 +1598,10 @@ legend {
 }
 
 .matches-table .button {
-  min-width: 7rem;
+  min-width: 5.5rem;
+  min-height: 2.25rem;
+  padding: 0 var(--space-4);
+  font-size: var(--font-size-sm);
 }
 
 .matches-empty {
@@ -2121,9 +2145,14 @@ legend {
     white-space: nowrap;
   }
 
-  /* Tables keep their width and scroll inside .table-wrap. */
+  /* Tables keep their width and scroll inside .table-wrap. Names stay on
+     one line here so rows don't get tall. */
   .matches-table {
     width: max-content;
+  }
+
+  .match-report div {
+    white-space: nowrap;
   }
 
   .activity-table {
