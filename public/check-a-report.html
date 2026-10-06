@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Check a Report · Lost &amp; Found Item Finder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-header__inner">
+        <a class="brand" href="report-an-item.html">
+          <span class="brand__logo" aria-hidden="true">LF</span>
+          <span class="brand__name">Lost &amp; Found Item Finder</span>
+          <!-- Mobile only: the page title replaces the full name in the header. -->
+          <span class="brand__page" aria-hidden="true">Check a report</span>
+        </a>
+        <nav class="site-nav site-nav--tab-bar" aria-label="Main">
+          <a class="site-nav__link" href="report-an-item.html"
+            ><svg
+              class="site-nav__icon"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M13 21H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8l4 4v5" />
+              <path d="M8 9h6M8 13h4M18 15v6M15 18h6" /></svg
+            >Report an item</a
+          >
+          <a
+            class="site-nav__link"
+            href="check-a-report.html"
+            aria-current="page"
+            ><svg
+              class="site-nav__icon"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              aria-hidden="true"
+            >
+              <circle cx="11" cy="11" r="7" />
+              <path d="M20 20l-4-4" /></svg
+            >Check a report</a
+          >
+        </nav>
+      </div>
+    </header>
+
+    <main class="page">
+      <div class="page__header">
+        <h1>Check a report you filed</h1>
+        <p class="page__subtitle">
+          Look it up, then track it here. The form stays open so you can check
+          another.
+        </p>
+      </div>
+
+      <div class="check-layout">
+        <div class="check-sidebar">
+          <form id="find-report-form" class="card card--padded find-report">
+            <h2>Find a report</h2>
+            <div class="field">
+              <label class="field__label" for="reference"
+                >Reference number</label
+              >
+              <input
+                class="input"
+                id="reference"
+                name="reference_code"
+                type="text"
+                placeholder="LFIF-123456"
+                aria-describedby="reference-help"
+              />
+              <p class="field__help" id="reference-help">
+                From your confirmation page, like LFIF-123456.
+              </p>
+            </div>
+            <div class="field">
+              <label class="field__label" for="check-contact"
+                >Phone number or email</label
+              >
+              <input
+                class="input"
+                id="check-contact"
+                name="contact_detail"
+                type="text"
+                placeholder="021 234 5678"
+                aria-describedby="check-contact-help"
+              />
+              <p class="field__help" id="check-contact-help">
+                Whichever one you gave when you filed it.
+              </p>
+            </div>
+            <button class="button button--primary button--block" type="submit">
+              Find my report
+            </button>
+          </form>
+
+          <!-- Asked in person because text and email notifications are out of scope. -->
+          <section class="card lost-reference">
+            <h2>Lost your reference number?</h2>
+            <p>
+              Ask at the Site Office with your photo ID and the phone number or
+              email you gave.
+            </p>
+          </section>
+        </div>
+
+        <!-- Placeholder result for LFIF-482913, shown after "Find my report". -->
+        <section
+          id="check-result"
+          class="check-result"
+          aria-labelledby="check-result-title"
+          hidden
+        >
+          <div class="check-result__header">
+            <h2
+              class="check-result__title"
+              id="check-result-title"
+              tabindex="-1"
+            >
+              <span
+                >Report
+                <span class="check-result__number">LFIF-482913</span></span
+              >
+              <span class="badge badge--lost">Lost</span>
+            </h2>
+            <p class="check-result__meta">
+              Filed 23 Aug 2026. We text 021 234 5678 with any update.
+            </p>
+          </div>
+
+          <!-- The heading only shows on mobile. -->
+          <div class="card progress">
+            <h3 class="progress__title" id="progress-title">Progress</h3>
+            <ol class="progress__steps" aria-labelledby="progress-title">
+              <li class="progress__step progress__step--done">
+                <span class="progress__marker"
+                  ><svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 14 14"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M2.5 7.5l3 3 6-7"
+                      stroke="currentColor"
+                      stroke-width="2.4"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    /></svg
+                ></span>
+                Submitted
+              </li>
+              <li class="progress__step progress__step--done">
+                <span class="progress__marker"
+                  ><svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 14 14"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M2.5 7.5l3 3 6-7"
+                      stroke="currentColor"
+                      stroke-width="2.4"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    /></svg
+                ></span>
+                Under review
+              </li>
+              <li class="progress__step progress__step--done">
+                <span class="progress__marker"
+                  ><svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 14 14"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M2.5 7.5l3 3 6-7"
+                      stroke="currentColor"
+                      stroke-width="2.4"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    /></svg
+                ></span>
+                Match found
+              </li>
+              <li
+                class="progress__step progress__step--current"
+                aria-current="step"
+              >
+                <span class="progress__marker"></span>
+                Ready to collect
+              </li>
+              <li class="progress__step progress__step--todo">
+                <span class="progress__marker"></span>
+                Collected
+              </li>
+            </ol>
+          </div>
+
+          <div class="card match-ready">
+            <h3 class="match-ready__title">
+              A match is ready for you to collect
+            </h3>
+            <div class="match-ready__body">
+              <p>Found report LFIF-731056, handed in at the Site Office.</p>
+              <p class="match-ready__note">
+                A moderator compared both reports and confirmed it.
+              </p>
+              <dl class="detail-grid match-ready__collect">
+                <div>
+                  <dt>Collect from</dt>
+                  <dd>Site Office, Main Reception, Level 1</dd>
+                </div>
+                <div>
+                  <dt>Open</dt>
+                  <dd>Mon to Fri, 8:30am to 5pm</dd>
+                </div>
+                <div>
+                  <dt>Bring</dt>
+                  <dd>Photo ID, and this reference number</dd>
+                </div>
+              </dl>
+            </div>
+          </div>
+
+          <div class="card your-details">
+            <h3>Details entered by you:</h3>
+            <dl class="detail-grid your-details__grid">
+              <div>
+                <dt>Item type</dt>
+                <dd>Wallet / Purse</dd>
+              </div>
+              <div>
+                <dt>Colour</dt>
+                <dd>Black</dd>
+              </div>
+              <div>
+                <dt>Area</dt>
+                <dd>Level 2 — Library</dd>
+              </div>
+              <div>
+                <dt>Lost on</dt>
+                <dd>23 Aug 2026</dd>
+              </div>
+              <div>
+                <dt>Brand / Model</dt>
+                <dd>Not entered</dd>
+              </div>
+            </dl>
+          </div>
+        </section>
+      </div>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Moderator Log In · Lost &amp; Found Item Finder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    />
+    <link rel="stylesheet" href="../style.css" />
+    <script src="../app.js" defer></script>
+  </head>
+  <body>
+    <div class="login">
+      <aside class="login__panel">
+        <div class="brand">
+          <span class="brand__logo" aria-hidden="true">LF</span>
+          <span class="brand__name">Lost &amp; Found Item Finder</span>
+        </div>
+
+        <div class="login__pitch">
+          <p class="login__headline">
+            Someone is waiting on the other end of this.
+          </p>
+          <p>
+            Every flagged match is a person who lost something that mattered to
+            them. Thanks for checking it properly.
+          </p>
+          <p class="login__rule">
+            <strong>One thing, always</strong>
+            See their ID before anything leaves the counter.
+          </p>
+        </div>
+
+        <p class="login__footnote">
+          Accounts are issued by an administrator.<br />
+          There is no sign-up.
+        </p>
+      </aside>
+
+      <main class="login__main">
+        <!-- Nothing is sent yet. app.js opens Potential Matches. -->
+        <form id="login-form" class="card card--padded login__card">
+          <h1>Moderator sign in</h1>
+          <p>Staff access to Potential Matches and item status.</p>
+
+          <div class="field">
+            <label class="field__label" for="email">Staff email</label>
+            <input
+              class="input"
+              id="email"
+              name="email"
+              type="email"
+              autocomplete="username"
+              placeholder="name@lostfound.app"
+              required
+            />
+          </div>
+
+          <div class="field">
+            <div class="login__label-row">
+              <label class="field__label" for="password">Password</label>
+              <button
+                class="link-button"
+                id="forgot-password"
+                type="button"
+                aria-expanded="false"
+                aria-controls="forgot-password-help"
+              >
+                Forgot password?
+              </button>
+            </div>
+            <input
+              class="input"
+              id="password"
+              name="password"
+              type="password"
+              autocomplete="current-password"
+              required
+            />
+            <p class="field__help" id="forgot-password-help" hidden>
+              Ask your administrator to reset it.
+            </p>
+          </div>
+
+          <!-- TODO: the backend decides how long a session lasts. -->
+          <label class="checkbox field">
+            <input type="checkbox" name="remember" />
+            Keep me signed in on this device.
+          </label>
+
+          <button class="button button--primary button--block" type="submit">
+            Log in
+          </button>
+
+          <p class="login__switch">
+            Not a moderator? <a href="../report-an-item.html">Report an item</a>
+          </p>
+        </form>
+
+        <p class="login__note">
+          <strong>Reporting or checking an item?</strong>
+          You do not need an account for either of those.
+        </p>
+      </main>
+    </div>
+  </body>
+</html>

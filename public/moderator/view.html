@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>View Match · Lost &amp; Found Item Finder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    />
+    <link rel="stylesheet" href="../style.css" />
+    <script src="../app.js" defer></script>
+  </head>
+  <body data-show-param="status" data-show-default="collected">
+    <header class="site-header">
+      <div class="site-header__inner">
+        <div class="site-header__start">
+          <a class="brand" href="matches.html">
+            <span class="brand__logo" aria-hidden="true">LF</span>
+            <span class="brand__name">Lost &amp; Found Item Finder</span>
+          </a>
+          <span class="site-header__badge">Moderator</span>
+        </div>
+        <div class="site-header__end">
+          <nav class="site-nav" aria-label="Moderator">
+            <a class="site-nav__link" href="matches.html">Potential Matches</a>
+          </nav>
+          <!-- Just links back to Log In until the backend is connected. -->
+          <a class="button button--on-primary" href="login.html"
+            ><svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <path d="M16 17l5-5-5-5M21 12H9" /></svg
+            >Log out</a
+          >
+          <!-- The signed-in Moderator's initials. Display only. -->
+          <span class="avatar"
+            ><span aria-hidden="true">AC</span
+            ><span class="visually-hidden"
+              >Signed in as a.ceniza@lostfound.app</span
+            ></span
+          >
+        </div>
+      </div>
+    </header>
+
+    <!-- Placeholder case. ?status=approved shows it before collection,
+         ?status=collected (the default) shows it after. -->
+    <main class="page page--moderator">
+      <a class="back-link" href="matches.html"
+        ><svg
+          width="16"
+          height="16"
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M10 3L5 8l5 5" /></svg
+        >Potential Matches</a
+      >
+      <div class="mod-heading mod-heading__title">
+        <h1>Umbrella — Black</h1>
+        <span
+          class="badge badge--status badge--approved"
+          data-show-for="approved"
+          hidden
+          >Approved</span
+        >
+        <span
+          class="badge badge--status badge--collected"
+          data-show-for="collected"
+          hidden
+          >Collected</span
+        >
+      </div>
+
+      <div class="banner banner--info" data-show-for="approved" hidden>
+        <p class="banner__text">
+          Match approved on 23 Aug 2026. Verify the Claimant when they come to
+          collect the item.
+        </p>
+        <a
+          class="button button--primary button--small"
+          href="verify-claimant.html"
+          >Verify claimant</a
+        >
+      </div>
+      <div class="banner banner--success" data-show-for="collected" hidden>
+        <svg
+          class="banner__icon"
+          width="32"
+          height="32"
+          viewBox="0 0 32 32"
+          aria-hidden="true"
+        >
+          <circle cx="16" cy="16" r="16" fill="currentColor" />
+          <path
+            d="M9.5 16.5l4.5 4.5 8.5-10"
+            fill="none"
+            stroke="#fff"
+            stroke-width="3"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+        <p class="banner__text">
+          Released to the owner on 24 Aug 2026 at 15:20 by
+          a.ceniza@lostfound.app.<br />At the Site Office
+        </p>
+      </div>
+
+      <div class="report-pair">
+        <section
+          class="card report-card report-card--lost"
+          aria-labelledby="report-205874"
+        >
+          <div class="report-card__header">
+            <span class="badge badge--lost">Lost</span>
+            <div>
+              <h2 id="report-205874">Report LFIF-205874</h2>
+              <p>Filed 21 Aug 2026 · m.reyes@ac.nz</p>
+            </div>
+          </div>
+          <dl class="report-card__rows">
+            <div class="report-card__row">
+              <dt>Item type</dt>
+              <dd><span>Umbrella</span></dd>
+            </div>
+            <div class="report-card__row">
+              <dt>Brand / Model</dt>
+              <dd><span>Blunt</span></dd>
+            </div>
+            <div class="report-card__row">
+              <dt>Colour</dt>
+              <dd><span>Black</span></dd>
+            </div>
+            <div class="report-card__row">
+              <dt>Area</dt>
+              <dd><span>Level 2 — Lecture hall B</span></dd>
+            </div>
+            <div class="report-card__row">
+              <dt>Date lost</dt>
+              <dd><span>21 Aug 2026</span></dd>
+            </div>
+            <div class="report-card__row">
+              <dt>Photo</dt>
+              <dd>
+                <span
+                  ><span class="report-card__photo"
+                    ><span class="thumb thumb--none" aria-hidden="true"></span
+                    ><span
+                      ><span class="report-card__empty">No photo attached</span
+                      ><br />The owner filed from memory.</span
+                    ></span
+                  ></span
+                >
+              </dd>
+            </div>
+            <div class="report-card__row">
+              <dt>Notes</dt>
+              <dd>
+                <span
+                  ><span class="report-card__plain"
+                    >Blunt umbrella, one rib is bent and the strap is
+                    missing.</span
+                  ><span
+                    class="report-card__hint"
+                    data-show-for="collected"
+                    hidden
+                    >The bent rib is what closed this case.</span
+                  ></span
+                >
+              </dd>
+            </div>
+          </dl>
+        </section>
+        <section
+          class="card report-card report-card--found"
+          aria-labelledby="report-918342"
+        >
+          <div class="report-card__header">
+            <span class="badge badge--found">Found</span>
+            <div>
+              <h2 id="report-918342">Report LFIF-918342</h2>
+              <p>Filed 22 Aug 2026 · Received 22 Aug 2026</p>
+            </div>
+          </div>
+          <dl class="report-card__rows">
+            <div class="report-card__row">
+              <dt>Item type</dt>
+              <dd><span>Umbrella</span></dd>
+            </div>
+            <div class="report-card__row">
+              <dt>Brand / Model</dt>
+              <dd>
+                <span><span class="report-card__empty">Not entered</span></span>
+              </dd>
+            </div>
+            <div class="report-card__row">
+              <dt>Colour</dt>
+              <dd><span>Black</span></dd>
+            </div>
+            <div class="report-card__row">
+              <dt>Area</dt>
+              <dd><span>Level 2 — Lecture hall B</span></dd>
+            </div>
+            <div class="report-card__row">
+              <dt>Date found</dt>
+              <dd><span>22 Aug 2026</span></dd>
+            </div>
+            <div class="report-card__row">
+              <dt>Photo</dt>
+              <dd>
+                <span
+                  ><span class="report-card__photo"
+                    ><span class="thumb" aria-hidden="true"
+                      ><svg
+                        class="photo-icon"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true"
+                      >
+                        <rect x="3" y="4" width="18" height="16" rx="2" />
+                        <circle cx="9" cy="10" r="2" />
+                        <path d="M21 16l-5-5-9 9" /></svg></span
+                    ><span
+                      >Photo added at hand-in<span class="report-card__hint"
+                        >Moderator only.</span
+                      ></span
+                    ></span
+                  ></span
+                >
+              </dd>
+            </div>
+            <div class="report-card__row">
+              <dt>Notes</dt>
+              <dd>
+                <span
+                  ><span class="report-card__plain"
+                    >Black umbrella, bent rib on one side. No name on it.</span
+                  ></span
+                >
+              </dd>
+            </div>
+          </dl>
+        </section>
+      </div>
+
+      <section class="activity" aria-labelledby="activity-title">
+        <h2 id="activity-title">Activity on this match</h2>
+        <div class="table-wrap">
+          <table class="table activity-table">
+            <thead>
+              <tr>
+                <th scope="col">When</th>
+                <th scope="col">Event</th>
+                <th scope="col">Recorded by</th>
+                <th scope="col">Detail</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>21 Aug, 09:14</td>
+                <td>
+                  <span class="event event--lost">Report submitted · Lost</span>
+                </td>
+                <td>Reporter</td>
+                <td>LFIF-205874 filed. Contact by email.</td>
+              </tr>
+              <tr>
+                <td>22 Aug, 11:02</td>
+                <td>
+                  <span class="event event--found"
+                    >Report submitted · Found</span
+                  >
+                </td>
+                <td>Reporter</td>
+                <td>Found Report LFIF-918342 filed.</td>
+              </tr>
+              <tr>
+                <td>22 Aug, 11:03</td>
+                <td><span class="event event--flagged">Match flagged</span></td>
+                <td>System</td>
+                <td>Scored 58%. Brand / Model missing on the Found Report.</td>
+              </tr>
+              <tr>
+                <td>22 Aug, 11:30</td>
+                <td><span class="event event--found">Item received</span></td>
+                <td>a.ceniza@lostfound.app</td>
+                <td>Umbrella handed in at the Site Office.</td>
+              </tr>
+              <tr>
+                <td>23 Aug, 09:40</td>
+                <td><span class="event">Match approved</span></td>
+                <td>a.ceniza@lostfound.app</td>
+                <td>Notes match. Emailed the owner to arrange collection.</td>
+              </tr>
+              <tr data-show-for="collected" hidden>
+                <td>24 Aug, 15:18</td>
+                <td><span class="event">Claim verified</span></td>
+                <td>a.ceniza@lostfound.app</td>
+                <td>Photo ID, Reference Number and Contact Detail checked.</td>
+              </tr>
+              <tr data-show-for="collected" hidden>
+                <td>24 Aug, 15:20</td>
+                <td><span class="event">Item collected</span></td>
+                <td>a.ceniza@lostfound.app</td>
+                <td>Owner named the bent rib. Item handed over.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
