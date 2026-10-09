@@ -77,14 +77,17 @@
         </p>
 
         <div class="submitted__reference">
-          <p>Your reference number</p>
-          <!-- Placeholder. The real number will come from the backend. -->
-          <p class="submitted__reference-number">LFIF-482913</p>
-          <p>
-            Keep it with the contact detail you gave (<strong
-              >021 234 5678</strong
-            >). Together they are how you check this report later.
-          </p>
+            <p>Your reference number</p>
+
+            <!-- Filled with the reference returned by the backend. -->
+            <p id="submitted-reference"
+               class="submitted__reference-number"></p>
+
+            <p>
+                Keep it with the contact detail you gave
+                (<strong id="submitted-contact"></strong>).
+                Together they are how you check this report later.
+            </p>
         </div>
 
         <div class="submitted__hand-in" data-show-for="found" hidden>
