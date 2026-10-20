@@ -98,11 +98,63 @@
           </p>
         </div>
         <!-- Nothing is saved yet: both choices go back to Potential Matches. -->
-        <div class="score-summary__actions">
-          <a class="button button--secondary" href="matches.html"
-            >Not a match</a
-          >
-          <a class="button button--found" href="matches.html">Confirm match</a>
+        <div class="score-summary__decide">
+          <!-- Moderator points: how sure you are from the notes. Separate from the decision. -->
+          <fieldset class="points">
+            <legend class="field__label">
+              Your score for the notes (out of 20)
+            </legend>
+            <div class="points__options">
+              <label class="segment"
+                ><input
+                  class="visually-hidden"
+                  type="radio"
+                  name="moderator_points"
+                  value="0"
+                />0</label
+              >
+              <label class="segment"
+                ><input
+                  class="visually-hidden"
+                  type="radio"
+                  name="moderator_points"
+                  value="5"
+                />5</label
+              >
+              <label class="segment"
+                ><input
+                  class="visually-hidden"
+                  type="radio"
+                  name="moderator_points"
+                  value="10"
+                />10</label
+              >
+              <label class="segment"
+                ><input
+                  class="visually-hidden"
+                  type="radio"
+                  name="moderator_points"
+                  value="15"
+                />15</label
+              >
+              <label class="segment"
+                ><input
+                  class="visually-hidden"
+                  type="radio"
+                  name="moderator_points"
+                  value="20"
+                />20</label
+              >
+            </div>
+          </fieldset>
+          <div class="score-summary__actions">
+            <a class="button button--secondary" href="matches.html"
+              >Not a match</a
+            >
+            <a class="button button--found" href="matches.html"
+              >Confirm match</a
+            >
+          </div>
         </div>
       </section>
 
