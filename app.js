@@ -1,9 +1,11 @@
 require("dotenv").config();
 
 const express = require("express");
+const session = require("express-session");
 // Reuse the MySQL connection pool from db/connection.js
 const pool = require("./db/connection");
 const reportRoutes = require("./routes/reportRoutes");
+const moderatorRoutes = require("./routes/moderatorRoutes");
 
 const path = require("path");
 const app = express();
@@ -11,10 +13,30 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// Serve the frontend files from public.
+
+if (!process.env.SESSION_SECRET) {
+    throw new Error("SESSION_SECRET must be set in .env before starting the server.");
+}
+
+// Sessions let the backend identify the logged-in Mod
+app.use(session({
+    name: "lfif.sid",
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 8 * 60 * 60 * 1000
+    }
+}));
+// Serve the frontend files from public
 app.use(express.static(path.join(__dirname, "public")));
-// Routes for public Lost and Found reports.
+// Routes for public Lost and Found reports
 app.use("/api/reports", reportRoutes);
+// Mod endpoints require a login session before they can be used
+app.use("/api/moderator", moderatorRoutes);
 
 app.get("/", (req, res) => {
     res.send("Lost & Found Item Finder is running.");
