@@ -1,5 +1,6 @@
 const crypto = require("crypto");
 const pool = require("../db/connection");
+const { findPotentialMatches } = require("../services/matchingService");
 
 
 // Generate a unique LFIF reference code
@@ -131,6 +132,9 @@ async function submitReport(req, res) {
             [result.insertId, "report_submitted"]
         );
 
+
+        // Check for potential matches as part of the same transaction
+        await findPotentialMatches(connection, result.insertId);
 
         await connection.commit();
 
