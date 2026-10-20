@@ -2238,6 +2238,8 @@ legend {
 
   .score-summary__actions .button {
     flex: 1;
+    padding: 0 var(--space-3);
+    white-space: nowrap; /* buttons stack instead of the text wrapping */
   }
 
   .report-pair,
