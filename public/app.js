@@ -1,154 +1,126 @@
 // Lost & Found Item Finder - page behaviour.
 // This file loads on every page, so each init function checks its elements
-// exist first.
+// exist first. Required fields use the browser's own checks.
 
 // --- Report an Item ----------------------------------------------------------
 
-// Sets up the Report an Item form: Lost/Found labels and the Phone/Email toggle
-// Sets up the Report an Item form and sends completed reports to the backend
+// Sets up the Report an Item form: Lost/Found labels, the Phone/Email toggle,
+// and sending the report to the backend.
 function initReportForm() {
-    const form = document.getElementById("report-form");
-    if (!form) return;
+  const form = document.getElementById("report-form");
+  if (!form) return;
 
-    const typeLabels = form.querySelectorAll("[data-label-lost]");
-    const contactInput = document.getElementById("contact");
-    const contactLabel = document.getElementById("contact-label");
+  const typeLabels = form.querySelectorAll("[data-label-lost]");
+  const contactInput = document.getElementById("contact");
+  const contactLabel = document.getElementById("contact-label");
 
-    // Save the default labels so reset can restore them
+  // Save the default label text so it can come back after a reset.
+  typeLabels.forEach((label) => {
+    label.dataset.labelNeutral = label.textContent;
+  });
+
+  // Changes the date and area labels for Lost or Found.
+  function applyReportType() {
+    const checked = form.querySelector('input[name="report_type"]:checked');
+    const type = checked ? checked.value : null;
+
     typeLabels.forEach((label) => {
-        label.dataset.labelNeutral = label.textContent;
+      if (type === "lost") label.textContent = label.dataset.labelLost;
+      else if (type === "found") label.textContent = label.dataset.labelFound;
+      else label.textContent = label.dataset.labelNeutral;
     });
+  }
 
-    // Change labels depending on Lost or Found
-    function applyReportType() {
-        const checked = form.querySelector('input[name="report_type"]:checked');
-        const type = checked ? checked.value : null;
+  // Switches the contact input between phone and email.
+  function applyContactMethod() {
+    const checked = form.querySelector('input[name="contact_method"]:checked');
+    if (!checked) return;
+    const method = checked.value;
 
-        typeLabels.forEach((label) => {
-            if (type === "lost") {
-                label.textContent = label.dataset.labelLost;
-            } else if (type === "found") {
-                label.textContent = label.dataset.labelFound;
-            } else {
-                label.textContent = label.dataset.labelNeutral;
-            }
-        });
+    if (method === "email") {
+      contactInput.type = "email";
+      contactInput.autocomplete = "email";
+      contactInput.placeholder = "name@example.com";
+      contactLabel.textContent = "Email address";
+    } else {
+      contactInput.type = "tel";
+      contactInput.autocomplete = "tel";
+      contactInput.placeholder = "021 234 5678";
+      contactLabel.textContent = "Phone number";
     }
+  }
 
-    // Switch the contact field between phone and email
-    function applyContactMethod() {
-        const checked = form.querySelector(
-            'input[name="contact_method"]:checked',
-        );
+  form.addEventListener("change", (event) => {
+    if (event.target.name === "report_type") applyReportType();
+    if (event.target.name === "contact_method") applyContactMethod();
+  });
 
-        if (!checked) return;
+  // Reset fires before the values clear, so wait a tick before updating.
+  form.addEventListener("reset", () => {
+    setTimeout(() => {
+      applyReportType();
+      applyContactMethod();
+    });
+  });
 
-        const method = checked.value;
+  // Send the report to the backend, then open the confirmation page.
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
 
-        if (method === "email") {
-            contactInput.type = "email";
-            contactInput.autocomplete = "email";
-            contactInput.placeholder = "name@example.com";
-            contactLabel.textContent = "Email address";
-        } else {
-            contactInput.type = "tel";
-            contactInput.autocomplete = "tel";
-            contactInput.placeholder = "021 234 5678";
-            contactLabel.textContent = "Phone number";
-        }
+    const data = new FormData(form);
+    const report = {
+      report_type: data.get("report_type"),
+      item_type: data.get("item_type"),
+      colour: data.get("colour"),
+      brand_model: data.get("brand_model"),
+      area: data.get("area"),
+      item_date: data.get("item_date"),
+      contact_method: data.get("contact_method"),
+      contact_detail: data.get("contact_detail"),
+      notes: data.get("notes"),
+    };
+
+    try {
+      const response = await fetch("/api/reports", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(report),
+      });
+      const result = await response.json();
+      if (!response.ok)
+        throw new Error(result.error || "Unable to submit report.");
+
+      // Keep the reference for the confirmation page.
+      sessionStorage.setItem(
+        "submittedReport",
+        JSON.stringify({
+          reference_code: result.reference_code,
+          contact_detail: report.contact_detail,
+        }),
+      );
+      window.location.href =
+        "report-submitted.html?report_type=" +
+        encodeURIComponent(report.report_type);
+    } catch (error) {
+      console.error("Report submission failed:", error);
+      alert("The report could not be submitted. Please try again.");
     }
+  });
 
-    // Update labels when form options change
-    form.addEventListener("change", (event) => {
-        if (event.target.name === "report_type") {
-            applyReportType();
-        }
-
-        if (event.target.name === "contact_method") {
-            applyContactMethod();
-        }
-    });
-
-    // Wait until reset finishes before restoring labels
-    form.addEventListener("reset", () => {
-        setTimeout(() => {
-            applyReportType();
-            applyContactMethod();
-        });
-    });
-
-    // Send the completed report to the Express backend
-    form.addEventListener("submit", async (event) => {
-        event.preventDefault();
-
-        const formData = new FormData(form);
-
-        const report = {
-            report_type: formData.get("report_type"),
-            item_type: formData.get("item_type"),
-            colour: formData.get("colour"),
-            brand_model: formData.get("brand_model"),
-            area: formData.get("area"),
-            item_date: formData.get("item_date"),
-            contact_method: formData.get("contact_method"),
-            contact_detail: formData.get("contact_detail"),
-            notes: formData.get("notes"),
-        };
-
-        try {
-            const response = await fetch("/api/reports", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(report),
-            });
-
-            const result = await response.json();
-
-            if (!response.ok) {
-                throw new Error(result.error || "Unable to submit report.");
-            }
-
-            // Save the result for the confirmation page
-            sessionStorage.setItem(
-                "submittedReport",
-                JSON.stringify({
-                    reference_code: result.reference_code,
-                    report_type: report.report_type,
-                    contact_detail: report.contact_detail,
-                }),
-            );
-
-            // Open the confirmation page after a successful submission
-            window.location.href =
-                "report-submitted.html?report_type=" +
-                encodeURIComponent(report.report_type);
-        } catch (error) {
-            console.error("Report submission failed:", error);
-            alert("The report could not be submitted. Please try again.");
-        }
-    });
-
-    applyReportType();
-    applyContactMethod();
+  applyReportType();
+  applyContactMethod();
 }
 
-// Shows the reference and contact detail after a report is submitted
+// Shows the reference number and contact detail after a report is submitted.
 function initSubmittedReport() {
-    const reference = document.getElementById("submitted-reference");
-    const contact = document.getElementById("submitted-contact");
+  const reference = document.getElementById("submitted-reference");
+  const contact = document.getElementById("submitted-contact");
+  const saved = sessionStorage.getItem("submittedReport");
+  if (!reference || !contact || !saved) return;
 
-    if (!reference || !contact) return;
-
-    const savedReport = sessionStorage.getItem("submittedReport");
-
-    if (!savedReport) return;
-
-    const report = JSON.parse(savedReport);
-
-    reference.textContent = report.reference_code;
-    contact.textContent = report.contact_detail;
+  const report = JSON.parse(saved);
+  reference.textContent = report.reference_code;
+  contact.textContent = report.contact_detail;
 }
 
 // --- Show or hide parts of a page from the URL -------------------------------
