@@ -6,6 +6,7 @@ const session = require("express-session");
 const pool = require("./db/connection");
 const reportRoutes = require("./routes/reportRoutes");
 const moderatorRoutes = require("./routes/moderatorRoutes");
+const moderatorAuthRoutes = require("./routes/moderatorAuthRoutes");
 
 const path = require("path");
 const app = express();
@@ -18,7 +19,7 @@ if (!process.env.SESSION_SECRET) {
     throw new Error("SESSION_SECRET must be set in .env before starting the server.");
 }
 
-// Sessions let the backend identify the logged-in Mod
+// Sessions let the backend identify the logged-in moderator
 app.use(session({
     name: "lfif.sid",
     secret: process.env.SESSION_SECRET,
@@ -31,11 +32,26 @@ app.use(session({
         maxAge: 8 * 60 * 60 * 1000
     }
 }));
+// Require a Mod session before serving moderator pages, not just the API
+app.use("/moderator", (req, res, next) => {
+    if ((req.method !== "GET" && req.method !== "HEAD") || req.path === "/login.html") {
+        return next();
+    }
+
+    if (!Number.isInteger(req.session?.moderatorId) || req.session.moderatorId <= 0) {
+        return res.redirect("/moderator/login.html");
+    }
+
+    next();
+});
+
 // Serve the frontend files from public
 app.use(express.static(path.join(__dirname, "public")));
 // Routes for public Lost and Found reports
 app.use("/api/reports", reportRoutes);
-// Mod endpoints require a login session before they can be used
+// Login is public; the match-review routes still check the session
+app.use("/api/moderator", moderatorAuthRoutes);
+// Moderator endpoints require a login session before they can be used
 app.use("/api/moderator", moderatorRoutes);
 
 app.get("/", (req, res) => {
