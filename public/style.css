@@ -1684,6 +1684,75 @@ legend {
   padding: 0;
 }
 
+/* Review Match fits one screen, so its summary and cards are tighter than on View. */
+.page--review {
+  padding-block: var(--space-3);
+}
+
+.page--review .mod-heading {
+  margin: var(--space-1) 0 var(--space-3);
+}
+
+.page--review .score-summary {
+  gap: var(--space-4);
+  margin-bottom: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+}
+
+.page--review .score-ring {
+  width: 4.75rem;
+  height: 4.75rem;
+  font-size: var(--font-size-lg);
+}
+
+.page--review .score-summary__text h2 {
+  font-size: var(--font-size-lg);
+}
+
+.page--review .score-summary__text p {
+  font-size: var(--font-size-sm);
+}
+
+.page--review .score-summary__decide {
+  gap: var(--space-2);
+}
+
+.page--review .points .field__label {
+  font-size: var(--font-size-xs);
+}
+
+.page--review .points .segment {
+  min-height: 2.25rem;
+}
+
+.page--review .score-summary__actions .button {
+  min-height: 2.5rem;
+  font-size: var(--font-size-base);
+}
+
+.page--review .report-card__header {
+  padding: var(--space-2) var(--space-4);
+  line-height: 1.3;
+}
+
+.page--review .report-card__rows {
+  padding: 0 var(--space-4);
+}
+
+.page--review .report-card__row {
+  padding: var(--space-2) 0;
+  line-height: 1.3;
+}
+
+.page--review .report-card__hint {
+  margin-top: 0;
+}
+
+.page--review .report-card .thumb {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
 /* --- Moderator: View and Verify Claimant ------------------------------------ */
 
 .banner .button {
