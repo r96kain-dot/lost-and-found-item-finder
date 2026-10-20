@@ -70,12 +70,12 @@
         <h1>Report an Item</h1>
       </div>
 
-      <!-- Nothing is saved yet. Submitting opens the confirmation page. -->
+      <!-- Report data is sent to the backend (POST /api/reports) by app.js. -->
       <form
         id="report-form"
         class="card report-form"
-        method="get"
-        action="report-submitted.html"
+        method="post"
+        action="/api/reports"
       >
         <!-- Nothing is pre-selected on purpose, so the Reporter has to choose. -->
         <fieldset class="report-type">
