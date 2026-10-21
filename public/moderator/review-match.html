@@ -50,50 +50,106 @@
         </div>
     </header>
 
-    <main class="page page--moderator">
-        <a class="back-link" href="matches.html">
-            <svg width="16"
-                 height="16"
-                 viewBox="0 0 16 16"
-                 fill="none"
-                 stroke="currentColor"
-                 stroke-width="2"
-                 stroke-linecap="round"
-                 stroke-linejoin="round"
-                 aria-hidden="true">
-                <path d="M10 3L5 8l5 5" />
-            </svg>Potential Matches
-        </a>
-        <div class="mod-heading">
-            <h1>Potential Match</h1>
-            <p>
-                The system scores the structured fields. You judge the notes, then
-                verify the Claimant in person before releasing the item.
-            </p>
-        </div>
+    <main class="page page--moderator page--review">
+      <a class="back-link" href="matches.html"
+        ><svg
+          width="16"
+          height="16"
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M10 3L5 8l5 5" /></svg
+        >Potential Matches</a
+      >
+      <div class="mod-heading">
+        <h1>Potential Match</h1>
+        <p>
+          The system scores the structured fields. You judge the notes, then
+          verify the Claimant in person before releasing the item.
+        </p>
+      </div>
 
-        <section class="card score-summary" aria-labelledby="score-title">
-            <div class="score-ring" style="--score: 78%">
-                78%<small>Match</small>
+      <section class="card score-summary" aria-labelledby="score-title">
+        <div class="score-ring" style="--score: 78%">
+          78%<small>Match</small>
+        </div>
+        <div class="score-summary__text">
+          <h2 id="score-title">
+            Same make and model, same area, one day apart
+          </h2>
+          <p>
+            Brand and area carry the weight. Item type and colour are weak
+            alone, since most wallets are black.<br /><strong
+              >The last 20% is reserved for the notes, so nothing reaches 100%
+              on its own.</strong
+            >
+          </p>
+        </div>
+        <!-- Nothing is saved yet: both choices go back to Potential Matches. -->
+        <div class="score-summary__decide">
+          <!-- Moderator points: how sure you are from the notes. Separate from the decision. -->
+          <fieldset class="points">
+            <legend class="field__label">
+              Your score for the notes (out of 20)
+            </legend>
+            <div class="points__options">
+              <label class="segment"
+                ><input
+                  class="visually-hidden"
+                  type="radio"
+                  name="moderator_points"
+                  value="0"
+                />0</label
+              >
+              <label class="segment"
+                ><input
+                  class="visually-hidden"
+                  type="radio"
+                  name="moderator_points"
+                  value="5"
+                />5</label
+              >
+              <label class="segment"
+                ><input
+                  class="visually-hidden"
+                  type="radio"
+                  name="moderator_points"
+                  value="10"
+                />10</label
+              >
+              <label class="segment"
+                ><input
+                  class="visually-hidden"
+                  type="radio"
+                  name="moderator_points"
+                  value="15"
+                />15</label
+              >
+              <label class="segment"
+                ><input
+                  class="visually-hidden"
+                  type="radio"
+                  name="moderator_points"
+                  value="20"
+                />20</label
+              >
             </div>
-            <div class="score-summary__text">
-                <h2 id="score-title">
-                    Same make and model, same area, one day apart
-                </h2>
-                <p>
-                    Brand and area carry the weight. Item type and colour are weak
-                    alone, since most wallets are black.<br /><strong>
-                        The last 20% is reserved for the notes, so nothing reaches 100%
-                        on its own.
-                    </strong>
-                </p>
-            </div>
-            <!-- Nothing is saved yet: both choices go back to Potential Matches. -->
-            <div class="score-summary__actions">
-                <a class="button button--secondary" href="matches.html">Not a match</a>
-                <a class="button button--found" href="matches.html">Confirm match</a>
-            </div>
-        </section>
+          </fieldset>
+          <div class="score-summary__actions">
+            <a class="button button--secondary" href="matches.html"
+              >Not a match</a
+            >
+            <a class="button button--found" href="matches.html"
+              >Confirm match</a
+            >
+          </div>
+        </div>
+      </section>
 
         <div class="report-pair">
             <section class="card report-card report-card--lost"
