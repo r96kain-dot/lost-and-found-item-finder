@@ -26,15 +26,18 @@ function askHidden(question) {
         let password = "";
         const wasRaw = Boolean(process.stdin.isRaw);
 
+        // Reads keys directly so the pw doesn't appear in powershell
         readline.emitKeypressEvents(process.stdin);
         process.stdout.write(question);
 
+        // Resets the terminal after entering the password
         function cleanup() {
             process.stdin.removeListener("keypress", onKeypress);
             process.stdin.setRawMode(wasRaw);
             process.stdin.pause();
         }
 
+        // Handles Enter, Backspace and cancelling the passwoord 
         function onKeypress(str, key) {
             if (key && key.ctrl && key.name === "c") {
                 cleanup();
@@ -73,6 +76,7 @@ function ask(question) {
 }
 
 async function main() {
+    // Email validation
     const email = (await ask("Moderator email: ")).trim().toLowerCase();
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -81,6 +85,7 @@ async function main() {
 
     rl.close();
 
+    // Asks for the password without showing in terminal
     const password = await askHidden("Password (hidden, at least 8 characters): ");
 
     if (password.length < 8) {
@@ -93,6 +98,7 @@ async function main() {
         throw new Error("Passwords do not match. Moderator account was not created.");
     }
 
+    // Saves hashed password to the DB, not the actual pw
     const passwordHash = await hashPassword(password);
 
     const [result] = await pool.query(
@@ -105,6 +111,8 @@ async function main() {
 
 main()
     .catch(error => {
+        // Displays an error message for any kind of account creation error
+        // also checks if the email has been used as a soft duplication check
         console.error("Unable to create Moderator:", error.code === "ER_DUP_ENTRY"
             ? "That email already has an account."
             : error.message);
