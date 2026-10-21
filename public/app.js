@@ -67,6 +67,8 @@ function initReportForm() {
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
 
+    // Same names as the item_reports columns. The photo isn't sent yet,
+    // since the backend doesn't take uploads.
     const data = new FormData(form);
     const report = {
       report_type: data.get("report_type"),
@@ -102,6 +104,7 @@ function initReportForm() {
         "report-submitted.html?report_type=" +
         encodeURIComponent(report.report_type);
     } catch (error) {
+      // Backend down or it sent back an error, so keep the form filled in.
       console.error("Report submission failed:", error);
       alert("The report could not be submitted. Please try again.");
     }
