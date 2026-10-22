@@ -162,15 +162,42 @@ function initCheckReport() {
 
 // --- Moderator Log In --------------------------------------------------------
 
-// Goes to Potential Matches after logging in, and toggles the forgot password tip.
+// Sends the login to the backend and opens Potential Matches if it works.
+// Also toggles the forgot password tip.
 function initLogin() {
   const form = document.getElementById("login-form");
   if (!form) return;
 
-  // Not sent anywhere yet, so the password never ends up in the URL.
-  form.addEventListener("submit", (event) => {
+  const errorMessage = document.getElementById("login-error");
+  const submit = form.querySelector('button[type="submit"]');
+
+  form.addEventListener("submit", async (event) => {
     event.preventDefault();
-    window.location.href = "matches.html";
+    errorMessage.hidden = true;
+    submit.disabled = true;
+
+    try {
+      const response = await fetch("/api/moderator/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({
+          email: form.elements.email.value.trim(),
+          password: form.elements.password.value,
+          remember: form.elements.remember.checked,
+        }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Unable to log in.");
+
+      form.elements.password.value = "";
+      window.location.assign("matches.html");
+    } catch (error) {
+      errorMessage.textContent = error.message || "Unable to log in.";
+      errorMessage.hidden = false;
+    } finally {
+      submit.disabled = false;
+    }
   });
 
   const forgot = document.getElementById("forgot-password");
@@ -178,6 +205,62 @@ function initLogin() {
   forgot.addEventListener("click", () => {
     forgotHelp.hidden = !forgotHelp.hidden;
     forgot.setAttribute("aria-expanded", String(!forgotHelp.hidden));
+  });
+}
+
+// Sends Moderators to Log In if they aren't logged in, fills in their
+// initials, and makes Log out end the session.
+function initModeratorSession() {
+  if (!document.querySelector(".site-header__badge")) return;
+
+  fetch("/api/moderator/session", { credentials: "same-origin" })
+    .then(async (response) => {
+      if (!response.ok) {
+        window.location.replace("login.html");
+        return;
+      }
+
+      const session = await response.json();
+      if (!session.email) return;
+
+      // Initials come from the email, since moderator accounts only store
+      // an email (no names).
+      const avatar = document.querySelector(".avatar");
+      if (avatar) {
+        const name = session.email.split("@")[0];
+        const initials =
+          name
+            .split(/[._-]+/)
+            .filter(Boolean)
+            .map((part) => part[0])
+            .join("")
+            .slice(0, 2) || name.slice(0, 2);
+        avatar.querySelector('[aria-hidden="true"]').textContent =
+          initials.toUpperCase();
+        avatar.querySelector(".visually-hidden").textContent =
+          "Signed in as " + session.email;
+      }
+    })
+    .catch(() => {
+      // Backend not reachable, so back to Log In.
+      window.location.replace("login.html");
+    });
+
+  // Log out ends the session before going back to Log In.
+  document.querySelectorAll("[data-moderator-logout]").forEach((link) => {
+    link.addEventListener("click", async (event) => {
+      event.preventDefault();
+      try {
+        const response = await fetch("/api/moderator/logout", {
+          method: "POST",
+          credentials: "same-origin",
+        });
+        if (!response.ok) throw new Error("Unable to log out.");
+        window.location.replace("login.html");
+      } catch (error) {
+        alert("Couldn't log out. Please try again.");
+      }
+    });
   });
 }
 
@@ -261,5 +344,6 @@ initSubmittedReport();
 initShowFor();
 initCheckReport();
 initLogin();
+initModeratorSession();
 initMatchFilter();
 initVerifyClaimant();
