@@ -29,8 +29,11 @@
           <nav class="site-nav" aria-label="Moderator">
             <a class="site-nav__link" href="matches.html">Potential Matches</a>
           </nav>
-          <!-- Just links back to Log In until the backend is connected. -->
-          <a class="button button--on-primary" href="login.html"
+          <!-- Logs the Moderator out and ends the session (app.js). -->
+          <a
+            class="button button--on-primary"
+            href="login.html"
+            data-moderator-logout
             ><svg
               width="18"
               height="18"
@@ -46,12 +49,10 @@
               <path d="M16 17l5-5-5-5M21 12H9" /></svg
             >Log out</a
           >
-          <!-- The signed-in Moderator's initials. Display only. -->
+          <!-- Initials and email are filled in from the login session. -->
           <span class="avatar"
-            ><span aria-hidden="true">AC</span
-            ><span class="visually-hidden"
-              >Signed in as a.ceniza@lostfound.app</span
-            ></span
+            ><span aria-hidden="true">--</span
+            ><span class="visually-hidden">Signed-in moderator</span></span
           >
         </div>
       </div>
@@ -81,6 +82,7 @@
         </p>
       </div>
 
+      <!-- Placeholder match until the backend sends real ones. -->
       <section class="card score-summary" aria-labelledby="score-title">
         <div class="score-ring" style="--score: 78%">
           78%<small>Match</small>
@@ -99,7 +101,7 @@
         </div>
         <!-- Nothing is saved yet: both choices go back to Potential Matches. -->
         <div class="score-summary__decide">
-          <!-- Moderator points: how sure you are from the notes. Separate from the decision. -->
+          <!-- How sure you are from the notes (moderator_points), not the decision. -->
           <fieldset class="points">
             <legend class="field__label">
               Your score for the notes (out of 20)

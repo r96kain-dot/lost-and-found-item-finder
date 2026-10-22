@@ -1400,6 +1400,12 @@ legend {
   margin-top: var(--space-5);
 }
 
+/* Login error: red like the other error banners, with no extra gap above Log in. */
+.login__card .banner {
+  margin: 0;
+  color: var(--color-lost);
+}
+
 .login__switch {
   margin-top: var(--space-4);
   color: var(--color-text-muted);
