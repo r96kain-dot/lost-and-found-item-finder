@@ -44,7 +44,7 @@
       </aside>
 
       <main class="login__main">
-        <!-- Nothing is sent yet. app.js opens Potential Matches. -->
+        <!-- app.js sends the login to the backend. -->
         <form id="login-form" class="card card--padded login__card">
           <h1>Moderator sign in</h1>
           <p>Staff access to Potential Matches and item status.</p>
@@ -88,11 +88,19 @@
             </p>
           </div>
 
-          <!-- TODO: the backend decides how long a session lasts. -->
+          <!-- Ticked gives a longer session. Otherwise it lasts 8 hours. -->
           <label class="checkbox field">
             <input type="checkbox" name="remember" />
             Keep me signed in on this device.
           </label>
+
+          <!-- Shows the backend's message if the login fails. -->
+          <p
+            class="banner banner--error"
+            id="login-error"
+            role="alert"
+            hidden
+          ></p>
 
           <button class="button button--primary button--block" type="submit">
             Log in
