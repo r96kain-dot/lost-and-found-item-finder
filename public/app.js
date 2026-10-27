@@ -147,17 +147,132 @@ function initShowFor() {
 
 // --- Check a Report ----------------------------------------------------------
 
-// Shows the placeholder result when "Find my report" is pressed.
+// The progress steps in order, using the backend's report_status values.
+const REPORT_STEPS = [
+  "submitted",
+  "under_review",
+  "matched",
+  "ready_to_collect",
+  "collected",
+];
+
+// The tick shown on finished steps.
+const TICK_ICON =
+  '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">' +
+  '<path d="M2.5 7.5l3 3 6-7" stroke="currentColor" stroke-width="2.4" ' +
+  'stroke-linecap="round" stroke-linejoin="round" /></svg>';
+
+// Adds "LFIF-" back if only the digits were typed (the backend needs the full code).
+function fullReference(value) {
+  return "LFIF-" + normaliseReference(value);
+}
+
+// Shows a date like "26 Oct 2026" in local time. The backend sends dates in UTC
+// (midnight in NZ is 11am the day before), so cutting up the text would be a day out.
+function formatDate(value) {
+  const date = /^\d{4}-\d{2}-\d{2}$/.test(value)
+    ? new Date(value + "T00:00")
+    : new Date(value);
+  return date.toLocaleDateString("en-NZ", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+// Looks up a report by Reference Number and contact detail, then shows it.
 function initCheckReport() {
   const form = document.getElementById("find-report-form");
   const result = document.getElementById("check-result");
   if (!form || !result) return;
 
-  form.addEventListener("submit", (event) => {
+  const errorMessage = document.getElementById("check-error");
+  const submit = form.querySelector('button[type="submit"]');
+
+  form.addEventListener("submit", async (event) => {
     event.preventDefault();
-    result.hidden = false;
-    document.getElementById("check-result-title").focus();
+    errorMessage.hidden = true;
+    submit.disabled = true;
+    let message = "We couldn't check your report right now. Please try again.";
+
+    try {
+      const response = await fetch("/api/reports/lookup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          reference_code: fullReference(form.elements.reference_code.value),
+          contact_detail: form.elements.contact_detail.value.trim(),
+        }),
+      });
+      // Same message whether the number or the contact is wrong, like the backend.
+      if (response.status === 404) {
+        message =
+          "We couldn't find a report with those details. Check the reference number and the phone number or email you gave.";
+      }
+      if (!response.ok) throw new Error(message);
+
+      const data = await response.json();
+      showReport(data.report);
+      result.hidden = false;
+      document.getElementById("check-result-title").focus();
+    } catch (error) {
+      result.hidden = true;
+      errorMessage.textContent = message;
+      errorMessage.hidden = false;
+    } finally {
+      submit.disabled = false;
+    }
   });
+}
+
+// Fills the result with the report sent back by the backend.
+function showReport(report) {
+  const lost = report.report_type === "lost";
+  const status = report.report_status;
+
+  document.getElementById("result-reference").textContent =
+    report.reference_code;
+  const type = document.getElementById("result-type");
+  type.textContent = lost ? "Lost" : "Found";
+  type.className = "badge " + (lost ? "badge--lost" : "badge--found");
+  document.getElementById("result-meta").textContent =
+    "Filed " +
+    formatDate(report.created_at) +
+    "." +
+    (status === "closed" ? " This report is closed." : "");
+
+  // Steps before the current one get a tick; a collected report is all done.
+  const current = REPORT_STEPS.indexOf(status);
+  document.querySelectorAll(".progress__step").forEach((step) => {
+    const index = REPORT_STEPS.indexOf(step.dataset.status);
+    const done = index < current || status === "collected";
+    const state = done ? "done" : index === current ? "current" : "todo";
+    step.className = "progress__step progress__step--" + state;
+    step.querySelector(".progress__marker").innerHTML = done ? TICK_ICON : "";
+    if (state === "current") step.setAttribute("aria-current", "step");
+    else step.removeAttribute("aria-current");
+  });
+
+  // Collection details are only for the owner, once their item is ready.
+  document.getElementById("result-ready").hidden = !(
+    lost && status === "ready_to_collect"
+  );
+  if (report.collection_instructions) {
+    document.getElementById("result-ready-text").textContent =
+      report.collection_instructions;
+  }
+
+  document.getElementById("result-item-type").textContent = report.item_type;
+  document.getElementById("result-colour").textContent = report.colour;
+  document.getElementById("result-area").textContent = report.area;
+  document.getElementById("result-date-label").textContent = lost
+    ? "Lost on"
+    : "Found on";
+  document.getElementById("result-date").textContent = formatDate(
+    report.item_date,
+  );
+  document.getElementById("result-brand").textContent =
+    report.brand_model || "Not entered";
 }
 
 // --- Moderator Log In --------------------------------------------------------
