@@ -82,24 +82,30 @@
         </p>
       </div>
 
-      <!-- Placeholder match until the backend sends real ones. -->
+      <!-- Shown if the match can't be loaded, or was already reviewed. -->
+      <p
+        class="banner banner--error"
+        id="review-message"
+        role="alert"
+        hidden
+      ></p>
+
+      <!-- Filled in by app.js from the match the backend sends. -->
       <section class="card score-summary" aria-labelledby="score-title">
-        <div class="score-ring" style="--score: 78%">
-          78%<small>Match</small>
+        <div class="score-ring" id="score-ring" style="--score: 0%">
+          0%<small>Match</small>
         </div>
         <div class="score-summary__text">
-          <h2 id="score-title">
-            Same make and model, same area, one day apart
-          </h2>
+          <h2 id="score-title">Loading match…</h2>
           <p>
             Brand and area carry the weight. Item type and colour are weak
-            alone, since most wallets are black.<br /><strong
+            alone, since many items look alike.<br /><strong
               >The last 20% is reserved for the notes, so nothing reaches 100%
               on its own.</strong
             >
           </p>
         </div>
-        <!-- Nothing is saved yet: both choices go back to Potential Matches. -->
+        <!-- app.js saves the decision, then goes back to Potential Matches. -->
         <div class="score-summary__decide">
           <!-- How sure you are from the notes (moderator_points), not the decision. -->
           <fieldset class="points">
@@ -148,391 +154,32 @@
                 />20</label
               >
             </div>
+            <p class="points__error" id="points-error" role="alert" hidden>
+              Pick a score before confirming the match.
+            </p>
           </fieldset>
           <div class="score-summary__actions">
-            <a class="button button--secondary" href="matches.html"
-              >Not a match</a
+            <!-- Not a match with no score picked counts as 0. -->
+            <button
+              class="button button--secondary"
+              type="button"
+              data-decision="rejected"
             >
-            <a class="button button--found" href="matches.html"
-              >Confirm match</a
+              Not a match
+            </button>
+            <button
+              class="button button--found"
+              type="button"
+              data-decision="approved"
             >
+              Confirm match
+            </button>
           </div>
         </div>
       </section>
 
-      <div class="report-pair">
-        <section
-          class="card report-card report-card--lost"
-          aria-labelledby="report-482913"
-        >
-          <div class="report-card__header">
-            <span class="badge badge--lost">Lost</span>
-            <div>
-              <h2 id="report-482913">Report LFIF-482913</h2>
-              <p>Filed 23 Aug 2026</p>
-            </div>
-          </div>
-          <dl class="report-card__rows">
-            <div class="report-card__row">
-              <dt>Item type</dt>
-              <dd>
-                <span>Wallet / Purse</span
-                ><span
-                  class="field-result field-result--match"
-                  role="img"
-                  aria-label="Match"
-                  ><svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 14 14"
-                    fill="none"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M2.5 7.5l3 3 6-7"
-                      stroke="currentColor"
-                      stroke-width="2.4"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    /></svg
-                ></span>
-              </dd>
-            </div>
-            <div class="report-card__row">
-              <dt>Brand / Model</dt>
-              <dd>
-                <span>Fossil · Derrick RFID</span
-                ><span
-                  class="field-result field-result--match"
-                  role="img"
-                  aria-label="Match"
-                  ><svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 14 14"
-                    fill="none"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M2.5 7.5l3 3 6-7"
-                      stroke="currentColor"
-                      stroke-width="2.4"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    /></svg
-                ></span>
-              </dd>
-            </div>
-            <div class="report-card__row">
-              <dt>Colour</dt>
-              <dd>
-                <span>Black</span
-                ><span
-                  class="field-result field-result--match"
-                  role="img"
-                  aria-label="Match"
-                  ><svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 14 14"
-                    fill="none"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M2.5 7.5l3 3 6-7"
-                      stroke="currentColor"
-                      stroke-width="2.4"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    /></svg
-                ></span>
-              </dd>
-            </div>
-            <div class="report-card__row">
-              <dt>Area</dt>
-              <dd>
-                <span>Level 2 — Library</span
-                ><span
-                  class="field-result field-result--match"
-                  role="img"
-                  aria-label="Match"
-                  ><svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 14 14"
-                    fill="none"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M2.5 7.5l3 3 6-7"
-                      stroke="currentColor"
-                      stroke-width="2.4"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    /></svg
-                ></span>
-              </dd>
-            </div>
-            <div class="report-card__row">
-              <dt>Date lost</dt>
-              <dd>
-                <span>23 Aug 2026</span
-                ><span
-                  class="field-result field-result--partial"
-                  role="img"
-                  aria-label="Partial match"
-                  ><svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 14 14"
-                    fill="none"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M3.5 7h7"
-                      stroke="currentColor"
-                      stroke-width="2.4"
-                      stroke-linecap="round"
-                    /></svg
-                ></span>
-              </dd>
-            </div>
-            <div class="report-card__row">
-              <dt>Photo</dt>
-              <dd>
-                <span
-                  ><span class="report-card__photo"
-                    ><span class="thumb" aria-hidden="true"
-                      ><svg
-                        class="photo-icon"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        aria-hidden="true"
-                      >
-                        <rect x="3" y="4" width="18" height="16" rx="2" />
-                        <circle cx="9" cy="10" r="2" />
-                        <path d="M21 16l-5-5-9 9" /></svg></span
-                    ><span
-                      >Owner’s own photo, filed with the report<span
-                        class="report-card__hint"
-                        >Not scored. Compare them yourself.</span
-                      ></span
-                    ></span
-                  ></span
-                >
-              </dd>
-            </div>
-            <div class="report-card__row">
-              <dt>Notes</dt>
-              <dd>
-                <span
-                  ><span class="report-card__plain"
-                    >Brown leather inside, one corner is scuffed. Bus card and a
-                    supermarket card in it, no cash.</span
-                  ><span class="report-card__hint"
-                    >Not scored. Read both before you confirm.</span
-                  ></span
-                >
-              </dd>
-            </div>
-            <div class="report-card__row">
-              <dt>Contact</dt>
-              <dd>
-                <span
-                  ><span class="report-card__plain">021 234 5678</span></span
-                >
-              </dd>
-            </div>
-          </dl>
-        </section>
-        <section
-          class="card report-card report-card--found"
-          aria-labelledby="report-731056"
-        >
-          <div class="report-card__header">
-            <span class="badge badge--found">Found</span>
-            <div>
-              <h2 id="report-731056">Report LFIF-731056</h2>
-              <p>Filed 24 Aug 2026 · Received 24 Aug 2026</p>
-            </div>
-          </div>
-          <dl class="report-card__rows">
-            <div class="report-card__row">
-              <dt>Item type</dt>
-              <dd>
-                <span>Wallet / Purse</span
-                ><span
-                  class="field-result field-result--match"
-                  role="img"
-                  aria-label="Match"
-                  ><svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 14 14"
-                    fill="none"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M2.5 7.5l3 3 6-7"
-                      stroke="currentColor"
-                      stroke-width="2.4"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    /></svg
-                ></span>
-              </dd>
-            </div>
-            <div class="report-card__row">
-              <dt>Brand / Model</dt>
-              <dd>
-                <span>Fossil · Derrick RFID</span
-                ><span
-                  class="field-result field-result--match"
-                  role="img"
-                  aria-label="Match"
-                  ><svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 14 14"
-                    fill="none"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M2.5 7.5l3 3 6-7"
-                      stroke="currentColor"
-                      stroke-width="2.4"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    /></svg
-                ></span>
-              </dd>
-            </div>
-            <div class="report-card__row">
-              <dt>Colour</dt>
-              <dd>
-                <span>Black</span
-                ><span
-                  class="field-result field-result--match"
-                  role="img"
-                  aria-label="Match"
-                  ><svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 14 14"
-                    fill="none"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M2.5 7.5l3 3 6-7"
-                      stroke="currentColor"
-                      stroke-width="2.4"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    /></svg
-                ></span>
-              </dd>
-            </div>
-            <div class="report-card__row">
-              <dt>Area</dt>
-              <dd>
-                <span>Level 2 — Library</span
-                ><span
-                  class="field-result field-result--match"
-                  role="img"
-                  aria-label="Match"
-                  ><svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 14 14"
-                    fill="none"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M2.5 7.5l3 3 6-7"
-                      stroke="currentColor"
-                      stroke-width="2.4"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    /></svg
-                ></span>
-              </dd>
-            </div>
-            <div class="report-card__row">
-              <dt>Date found</dt>
-              <dd>
-                <span>24 Aug 2026</span
-                ><span
-                  class="field-result field-result--partial"
-                  role="img"
-                  aria-label="Partial match"
-                  ><svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 14 14"
-                    fill="none"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M3.5 7h7"
-                      stroke="currentColor"
-                      stroke-width="2.4"
-                      stroke-linecap="round"
-                    /></svg
-                ></span>
-              </dd>
-            </div>
-            <div class="report-card__row">
-              <dt>Photo</dt>
-              <dd>
-                <span
-                  ><span class="report-card__photo"
-                    ><span class="thumb" aria-hidden="true"
-                      ><svg
-                        class="photo-icon"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        aria-hidden="true"
-                      >
-                        <rect x="3" y="4" width="18" height="16" rx="2" />
-                        <circle cx="9" cy="10" r="2" />
-                        <path d="M21 16l-5-5-9 9" /></svg></span
-                    ><span
-                      >Taken at hand-in<span class="report-card__hint"
-                        >Not scored. Compare them yourself.</span
-                      ></span
-                    ></span
-                  ></span
-                >
-              </dd>
-            </div>
-            <div class="report-card__row">
-              <dt>Notes</dt>
-              <dd>
-                <span
-                  ><span class="report-card__plain"
-                    >Brown leather interior, scuff on the bottom left corner.
-                    Bus card and loyalty card, no ID.</span
-                  ><span class="report-card__hint"
-                    >Not scored. Read both before you confirm.</span
-                  ></span
-                >
-              </dd>
-            </div>
-          </dl>
-        </section>
-      </div>
+      <!-- Both report cards are built by app.js. -->
+      <div class="report-pair" id="report-pair"></div>
     </main>
   </body>
 </html>
