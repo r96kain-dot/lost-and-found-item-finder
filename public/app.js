@@ -556,6 +556,234 @@ function initMatchFilter() {
     });
 }
 
+// --- Review Match ------------------------------------------------------------
+
+// The dash shown for a partial match (dates a few days apart).
+const DASH_ICON =
+  '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">' +
+  '<path d="M3.5 7h7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" /></svg>';
+
+// Report Status values as words.
+const STATUS_LABELS = {
+  submitted: "Submitted",
+  under_review: "Under review",
+  matched: "Matched",
+  ready_to_collect: "Ready to collect",
+  collected: "Collected",
+  closed: "Closed",
+};
+
+// True when both reports have the same value (ignoring case and spaces).
+function sameValue(a, b) {
+  return Boolean(a && b) && a.trim().toLowerCase() === b.trim().toLowerCase();
+}
+
+// Number of days between two dates like "2026-08-23".
+function daysApart(a, b) {
+  return Math.round(
+    Math.abs(new Date(a + "T00:00") - new Date(b + "T00:00")) / 864e5,
+  );
+}
+
+// One report card: header, then a row per field with a tick when both match.
+function reportCard(report, other, kind) {
+  const lost = kind === "lost";
+  const days = daysApart(report.item_date, other.item_date);
+  const icon = (state) =>
+    state === "match"
+      ? `<span class="field-result field-result--match" role="img" aria-label="Match">${TICK_ICON}</span>`
+      : state === "partial"
+        ? `<span class="field-result field-result--partial" role="img" aria-label="Partial match">${DASH_ICON}</span>`
+        : "";
+  const row = (label, value, state) =>
+    `<div class="report-card__row"><dt>${label}</dt><dd>${value}${icon(state)}</dd></div>`;
+  const text = (value) => `<span>${escapeHtml(value)}</span>`;
+  const match = (field) =>
+    sameValue(report[field], other[field]) ? "match" : "";
+
+  // Found reports also show whether the item has reached the office.
+  let meta = STATUS_LABELS[report.report_status] || "";
+  if (!lost) {
+    meta += report.received_at
+      ? " · Received " + formatDate(report.received_at)
+      : " · Not handed in yet";
+  }
+
+  const brand = report.brand_model
+    ? text(report.brand_model)
+    : '<span class="report-card__empty">Not entered</span>';
+  const photo = `<span><span class="report-card__photo"><span class="thumb${
+    report.has_photo ? "" : " thumb--none"
+  }" aria-hidden="true">${report.has_photo ? PHOTO_ICON : ""}</span><span>${
+    report.has_photo ? "Photo added with the report" : "No photo"
+  }<span class="report-card__hint">Not scored. Compare them yourself.</span></span></span></span>`;
+  const notes = `<span><span class="report-card__plain">${escapeHtml(
+    report.notes || "No notes",
+  )}</span><span class="report-card__hint">Not scored. Read both before you confirm.</span></span>`;
+  const contact = `<span><span class="report-card__plain">${escapeHtml(
+    report.contact_detail,
+  )}</span></span>`;
+
+  const rows = [
+    row("Item type", text(report.item_type), match("item_type")),
+    row("Brand / Model", brand, match("brand_model")),
+    row("Colour", text(report.colour), match("colour")),
+    row("Area", text(report.area), match("area")),
+    row(
+      lost ? "Date lost" : "Date found",
+      text(formatDate(report.item_date)),
+      days === 0 ? "match" : days <= 3 ? "partial" : "",
+    ),
+    row("Photo", photo),
+    row("Notes", notes),
+    lost ? row("Contact", contact) : "",
+  ];
+
+  return `<section class="card report-card report-card--${kind}" aria-labelledby="report-${kind}"><div class="report-card__header"><span class="badge badge--${kind}">${
+    lost ? "Lost" : "Found"
+  }</span><div><h2 id="report-${kind}">Report ${escapeHtml(
+    report.reference_code,
+  )}</h2><p>${escapeHtml(meta)}</p></div></div><dl class="report-card__rows">${rows.join(
+    "",
+  )}</dl></section>`;
+}
+
+// A short summary like "Same item, colour and area, 1 day apart".
+function matchSummary(lost, found) {
+  const names = {
+    item_type: "item",
+    brand_model: "make and model",
+    colour: "colour",
+    area: "area",
+  };
+  const same = Object.keys(names)
+    .filter((field) => sameValue(lost[field], found[field]))
+    .map((field) => names[field]);
+  const days = daysApart(lost.item_date, found.item_date);
+  const when =
+    days === 0
+      ? "same day"
+      : days + (days === 1 ? " day apart" : " days apart");
+  if (!same.length) return "Few details match, " + when;
+  const list =
+    same.length === 1
+      ? same[0]
+      : same.slice(0, -1).join(", ") + " and " + same[same.length - 1];
+  return "Same " + list + ", " + when;
+}
+
+// Loads the chosen match, fills the page, and saves the Moderator's decision.
+function initReviewMatch() {
+  const pair = document.getElementById("report-pair");
+  if (!pair) return;
+
+  const matchId = new URLSearchParams(window.location.search).get("match");
+  const message = document.getElementById("review-message");
+  const pointsError = document.getElementById("points-error");
+  const buttons = document.querySelectorAll("[data-decision]");
+  const points = document.querySelectorAll('input[name="moderator_points"]');
+
+  // Shows a message above the match.
+  function showMessage(text, kind = "error") {
+    message.textContent = text;
+    message.className = "banner banner--" + kind;
+    message.hidden = false;
+  }
+
+  // Stops a decision being sent (no match, or it was already reviewed).
+  function lock(text, kind) {
+    showMessage(text, kind);
+    buttons.forEach((button) => (button.disabled = true));
+    points.forEach((point) => (point.disabled = true));
+  }
+
+  if (!matchId) {
+    lock("No match was chosen. Go back to Potential Matches and press Review.");
+    return;
+  }
+  const url = "/api/moderator/matches/" + encodeURIComponent(matchId);
+
+  fetch(url, { credentials: "same-origin" })
+    .then((response) => {
+      if (response.status === 404) {
+        throw new Error("That match couldn't be found.");
+      }
+      if (!response.ok) {
+        throw new Error(
+          "We couldn't load this match. Please refresh the page.",
+        );
+      }
+      return response.json();
+    })
+    .then(({ match }) => {
+      const score = Math.round(match.automatic_score);
+      const ring = document.getElementById("score-ring");
+      ring.style.setProperty("--score", score + "%");
+      ring.firstChild.textContent = score + "%";
+      document.getElementById("score-title").textContent = matchSummary(
+        match.lost_report,
+        match.found_report,
+      );
+      pair.innerHTML =
+        reportCard(match.lost_report, match.found_report, "lost") +
+        reportCard(match.found_report, match.lost_report, "found");
+
+      // Already reviewed: show the saved score and decision, read only.
+      if (match.decision !== "pending") {
+        points.forEach((point) => {
+          point.checked = Number(point.value) === match.moderator_points;
+        });
+        lock(
+          "This match has already been reviewed: " +
+            (match.decision === "approved" ? "Approved." : "Not a match."),
+          "info",
+        );
+      }
+    })
+    .catch((error) => lock(error.message));
+
+  points.forEach((point) =>
+    point.addEventListener("change", () => (pointsError.hidden = true)),
+  );
+
+  buttons.forEach((button) =>
+    button.addEventListener("click", async () => {
+      const decision = button.dataset.decision;
+      const picked = document.querySelector(
+        'input[name="moderator_points"]:checked',
+      );
+
+      // Confirm needs a score; Not a match counts as 0 if none is picked.
+      if (decision === "approved" && !picked) {
+        pointsError.hidden = false;
+        points[0].focus();
+        return;
+      }
+
+      buttons.forEach((b) => (b.disabled = true));
+      try {
+        const response = await fetch(url + "/review", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "same-origin",
+          body: JSON.stringify({
+            decision,
+            moderator_points: picked ? Number(picked.value) : 0,
+          }),
+        });
+        const result = await response.json();
+        if (!response.ok) {
+          throw new Error(result.error || "Unable to save the decision.");
+        }
+        window.location.assign("matches.html");
+      } catch (error) {
+        showMessage(error.message + " Please try again.");
+        buttons.forEach((b) => (b.disabled = false));
+      }
+    }),
+  );
+}
+
 // --- Verify Claimant ---------------------------------------------------------
 
 // Placeholder details for Lost Report LFIF-205874 until the backend does the check.
@@ -599,4 +827,5 @@ initCheckReport();
 initLogin();
 initModeratorSession();
 initMatchFilter();
+initReviewMatch();
 initVerifyClaimant();

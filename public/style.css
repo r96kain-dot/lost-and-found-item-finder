@@ -1729,6 +1729,14 @@ legend {
   font-size: var(--font-size-xs);
 }
 
+/* Shown if Confirm match is pressed without a score. */
+.points__error {
+  margin: var(--space-1) 0 0;
+  color: var(--color-lost);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+}
+
 .page--review .points .segment {
   min-height: 2.25rem;
 }
