@@ -89,6 +89,7 @@
                 type="text"
                 placeholder="LFIF-123456"
                 aria-describedby="reference-help"
+                required
               />
               <p class="field__help" id="reference-help">
                 From your confirmation page, like LFIF-123456.
@@ -105,11 +106,19 @@
                 type="text"
                 placeholder="021 234 5678"
                 aria-describedby="check-contact-help"
+                required
               />
               <p class="field__help" id="check-contact-help">
                 Whichever one you gave when you filed it.
               </p>
             </div>
+            <!-- Shows a message if the report can't be found. -->
+            <p
+              class="banner banner--error"
+              id="check-error"
+              role="alert"
+              hidden
+            ></p>
             <button class="button button--primary button--block" type="submit">
               Find my report
             </button>
@@ -125,7 +134,7 @@
           </section>
         </div>
 
-        <!-- Placeholder result for LFIF-482913, shown after "Find my report". -->
+        <!-- Filled in by app.js from the backend after "Find my report". -->
         <section
           id="check-result"
           class="check-result"
@@ -140,12 +149,14 @@
             >
               <span
                 >Report
-                <span class="check-result__number">LFIF-482913</span></span
+                <span class="check-result__number" id="result-reference"
+                  >LFIF-482913</span
+                ></span
               >
-              <span class="badge badge--lost">Lost</span>
+              <span class="badge badge--lost" id="result-type">Lost</span>
             </h2>
-            <p class="check-result__meta">
-              Filed 23 Aug 2026. We text 021 234 5678 with any update.
+            <p class="check-result__meta" id="result-meta">
+              Filed 23 Aug 2026.
             </p>
           </div>
 
@@ -153,7 +164,10 @@
           <div class="card progress">
             <h3 class="progress__title" id="progress-title">Progress</h3>
             <ol class="progress__steps" aria-labelledby="progress-title">
-              <li class="progress__step progress__step--done">
+              <li
+                class="progress__step progress__step--done"
+                data-status="submitted"
+              >
                 <span class="progress__marker"
                   ><svg
                     width="14"
@@ -172,7 +186,10 @@
                 ></span>
                 Submitted
               </li>
-              <li class="progress__step progress__step--done">
+              <li
+                class="progress__step progress__step--done"
+                data-status="under_review"
+              >
                 <span class="progress__marker"
                   ><svg
                     width="14"
@@ -191,7 +208,10 @@
                 ></span>
                 Under review
               </li>
-              <li class="progress__step progress__step--done">
+              <li
+                class="progress__step progress__step--done"
+                data-status="matched"
+              >
                 <span class="progress__marker"
                   ><svg
                     width="14"
@@ -212,24 +232,31 @@
               </li>
               <li
                 class="progress__step progress__step--current"
+                data-status="ready_to_collect"
                 aria-current="step"
               >
                 <span class="progress__marker"></span>
                 Ready to collect
               </li>
-              <li class="progress__step progress__step--todo">
+              <li
+                class="progress__step progress__step--todo"
+                data-status="collected"
+              >
                 <span class="progress__marker"></span>
                 Collected
               </li>
             </ol>
           </div>
 
-          <div class="card match-ready">
+          <!-- Only shown to the owner once their item is ready to collect. -->
+          <div class="card match-ready" id="result-ready">
             <h3 class="match-ready__title">
               A match is ready for you to collect
             </h3>
             <div class="match-ready__body">
-              <p>Found report LFIF-731056, handed in at the Main Office.</p>
+              <p id="result-ready-text">
+                Your item has been handed in at the Main Office.
+              </p>
               <p class="match-ready__note">
                 A moderator compared both reports and confirmed it.
               </p>
@@ -255,23 +282,23 @@
             <dl class="detail-grid your-details__grid">
               <div>
                 <dt>Item type</dt>
-                <dd>Wallet / Purse</dd>
+                <dd id="result-item-type">Wallet / Purse</dd>
               </div>
               <div>
                 <dt>Colour</dt>
-                <dd>Black</dd>
+                <dd id="result-colour">Black</dd>
               </div>
               <div>
                 <dt>Area</dt>
-                <dd>Level 2 — Library</dd>
+                <dd id="result-area">Level 2 — Library</dd>
               </div>
               <div>
-                <dt>Lost on</dt>
-                <dd>23 Aug 2026</dd>
+                <dt id="result-date-label">Lost on</dt>
+                <dd id="result-date">23 Aug 2026</dd>
               </div>
               <div>
                 <dt>Brand / Model</dt>
-                <dd>Not entered</dd>
+                <dd id="result-brand">Not entered</dd>
               </div>
             </dl>
           </div>

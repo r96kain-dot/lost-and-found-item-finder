@@ -1400,6 +1400,14 @@ legend {
   margin-top: var(--space-5);
 }
 
+/* Form errors on Log In and Check a Report: red like the other error banners,
+   with no extra gap above the button. */
+.login__card .banner,
+.find-report .banner {
+  margin: 0;
+  color: var(--color-lost);
+}
+
 .login__switch {
   margin-top: var(--space-4);
   color: var(--color-text-muted);
@@ -1719,6 +1727,14 @@ legend {
 
 .page--review .points .field__label {
   font-size: var(--font-size-xs);
+}
+
+/* Shown if Confirm match is pressed without a score. */
+.points__error {
+  margin: var(--space-1) 0 0;
+  color: var(--color-lost);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
 }
 
 .page--review .points .segment {
