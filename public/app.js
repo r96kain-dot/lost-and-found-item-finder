@@ -386,22 +386,114 @@ function normaliseReference(value) {
   return value.replace(/lfif|[#\s-]/gi, "");
 }
 
-// Filters the table by Reference Number search and Match Status.
+// Stops text from the database being read as HTML.
+function escapeHtml(value) {
+  return String(value ?? "").replace(
+    /[&<>"']/g,
+    (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[
+        c
+      ],
+  );
+}
+
+// The photo icon used in the table thumbnails.
+const PHOTO_ICON =
+  '<svg class="photo-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" ' +
+  'stroke="currentColor" stroke-width="2" stroke-linecap="round" ' +
+  'stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" ' +
+  'height="16" rx="2" /><circle cx="9" cy="10" r="2" /><path d="M21 16l-5-5-9 9" /></svg>';
+
+// Turns a time into "5 hours" or "4 days", counting from now.
+function timeSince(value) {
+  const hours = Math.max(0, (Date.now() - new Date(value)) / 36e5);
+  if (hours < 1) return "Under an hour";
+  if (hours < 24) return Math.floor(hours) + (hours < 2 ? " hour" : " hours");
+  const days = Math.floor(hours / 24);
+  return days + (days === 1 ? " day" : " days");
+}
+
+// Works out the Match Status shown for a match.
+function matchStatus(match) {
+  if (match.lost_report.report_status === "collected") return "collected";
+  if (match.decision === "approved") return "approved";
+  if (match.decision === "rejected") return "not-a-match";
+  return "needs-review";
+}
+
+// One report's cell: photo thumbnail, item and colour, reference and area.
+function matchReportCell(report) {
+  const thumb = report.has_photo
+    ? `<span class="thumb" role="img" aria-label="Photo">${PHOTO_ICON}</span>`
+    : '<span class="thumb thumb--none" role="img" aria-label="No photo"></span>';
+  return `<td><div class="match-report">${thumb}<div><strong>${escapeHtml(
+    report.item_type,
+  )} — ${escapeHtml(report.colour)}</strong><span>${escapeHtml(
+    report.reference_code,
+  )} · ${escapeHtml(report.area)}</span></div></div></td>`;
+}
+
+// Builds a table row for one match, in the same layout as the designs.
+function matchRow(match) {
+  const status = matchStatus(match);
+  const closed = status === "collected" || status === "not-a-match";
+  const score = Math.round(match.total_score);
+  const scoreClass = closed ? "closed" : score >= 70 ? "high" : "mid";
+  const days = (Date.now() - new Date(match.created_at)) / 864e5;
+  const labels = {
+    "needs-review": "Needs review",
+    approved: "Approved",
+    collected: "Collected",
+    "not-a-match": "Not a match",
+  };
+
+  let waiting = escapeHtml(timeSince(match.created_at));
+  if (closed) {
+    waiting = `<span class="waiting--closed">Closed ${escapeHtml(
+      timeSince(match.reviewed_at || match.created_at).toLowerCase(),
+    )} ago</span>`;
+  } else if (days > 3) {
+    waiting = `<span class="waiting--late">${waiting} <span aria-hidden="true">!</span><span class="visually-hidden">(over 3 days)</span></span>`;
+  }
+
+  // Needs review opens Review Match; the rest open the View page.
+  const action =
+    status === "needs-review"
+      ? `<a class="button button--primary button--small" href="review-match.html?match=${match.match_id}">Review</a>`
+      : `<a class="button button--secondary button--small" href="view.html?match=${match.match_id}&amp;status=${
+          status === "approved" ? "approved" : "collected"
+        }">View</a>`;
+
+  const references = [match.lost_report, match.found_report]
+    .map((r) => normaliseReference(r.reference_code))
+    .join(" ");
+  return `<tr data-status="${status}" data-references="${escapeHtml(references)}"${
+    closed ? ' class="is-closed"' : ""
+  }>${matchReportCell(match.lost_report)}${matchReportCell(
+    match.found_report,
+  )}<td><span class="score score--${scoreClass}" style="--score: ${score}%">${score}%</span></td><td>${waiting}</td><td><span class="badge badge--status badge--${status}">${
+    labels[status]
+  }</span></td><td>${action}</td></tr>`;
+}
+
+// Loads the matches from the backend, fills the stat cards and the table, and
+// sets up the Reference Number search and Match Status filter.
 function initMatchFilter() {
   const table = document.getElementById("matches-table");
   if (!table) return;
 
   const search = document.getElementById("match-search");
   const status = document.getElementById("match-status");
-  const rows = table.querySelectorAll("tbody tr[data-status]");
   const empty = document.getElementById("matches-empty");
+  const emptyText = empty.querySelector("td");
+  let total = 0;
 
   // Hides rows that don't match, and shows a message if none are left.
   function applyFilter() {
     const query = normaliseReference(search.value);
     let shown = 0;
 
-    rows.forEach((row) => {
+    table.querySelectorAll("tbody tr[data-status]").forEach((row) => {
       const matchesSearch =
         query === "" ||
         row.dataset.references.split(" ").some((ref) => ref.includes(query));
@@ -411,11 +503,57 @@ function initMatchFilter() {
       if (!row.hidden) shown += 1;
     });
 
+    emptyText.textContent = total
+      ? "No Potential Matches fit this search."
+      : "No Potential Matches yet.";
     empty.hidden = shown > 0;
   }
 
   search.addEventListener("input", applyFilter);
   status.addEventListener("change", applyFilter);
+
+  fetch("/api/moderator/matches?decision=all", { credentials: "same-origin" })
+    .then((response) => {
+      if (!response.ok) throw new Error("Unable to load matches.");
+      return response.json();
+    })
+    .then(({ matches }) => {
+      // Open matches first, longest wait first ("Waiting ↓"), then closed ones.
+      const open = matches.filter((m) =>
+        ["needs-review", "approved"].includes(matchStatus(m)),
+      );
+      const closed = matches.filter((m) => !open.includes(m));
+      open.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+      closed.sort(
+        (a, b) =>
+          new Date(b.reviewed_at || b.created_at) -
+          new Date(a.reviewed_at || a.created_at),
+      );
+      empty.insertAdjacentHTML(
+        "beforebegin",
+        [...open, ...closed].map(matchRow).join(""),
+      );
+
+      const count = (s) => matches.filter((m) => matchStatus(m) === s).length;
+      document.getElementById("stat-awaiting").textContent =
+        count("needs-review");
+      document.getElementById("stat-late").textContent = matches.filter(
+        (m) =>
+          matchStatus(m) === "needs-review" &&
+          (Date.now() - new Date(m.created_at)) / 864e5 > 3,
+      ).length;
+      document.getElementById("stat-approved").textContent = count("approved");
+      document.getElementById("stat-collected").textContent =
+        count("collected");
+
+      total = matches.length;
+      applyFilter();
+    })
+    .catch(() => {
+      emptyText.textContent =
+        "We couldn't load the matches. Please refresh the page.";
+      empty.hidden = false;
+    });
 }
 
 // --- Verify Claimant ---------------------------------------------------------
