@@ -10,7 +10,7 @@ function reviewError(status, message) {
     return error;
 }
 
-// Match details from DB and joins both reports together so the Mod can compare 
+// Match details from DB and joins both reports together so the Mod can compare
 const matchDetailsQuery = `
     SELECT
         p.match_id, p.automatic_score, p.moderator_points,
@@ -27,6 +27,7 @@ const matchDetailsQuery = `
         l.contact_detail AS lost_contact_detail,
         l.photo_key IS NOT NULL AS lost_has_photo,
         l.report_status AS lost_report_status,
+        l.created_at AS lost_created_at,
         f.report_id AS found_report_id,
         f.reference_code AS found_reference_code,
         f.item_type AS found_item_type,
@@ -39,7 +40,8 @@ const matchDetailsQuery = `
         f.contact_detail AS found_contact_detail,
         f.photo_key IS NOT NULL AS found_has_photo,
         f.received_at AS found_received_at,
-        f.report_status AS found_report_status
+        f.report_status AS found_report_status,
+        f.created_at AS found_created_at
     FROM potential_matches p
     JOIN item_reports l ON l.report_id = p.lost_report_id
     JOIN item_reports f ON f.report_id = p.found_report_id
@@ -60,6 +62,10 @@ function formatMatch(row, includeContact = false) {
             area: row[`${prefix}_area`],
             item_date: row[`${prefix}_item_date`],
             report_status: row[`${prefix}_report_status`],
+
+            // For Alex: return filed date with each report
+            created_at: row[`${prefix}_created_at`],
+
             has_photo: Boolean(row[`${prefix}_has_photo`])
         };
 

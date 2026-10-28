@@ -117,6 +117,27 @@ async function findPotentialMatches(connection, reportId) {
             continue;
         }
 
+        // Log new flagged potential matches against both reports
+        await connection.query(
+            `INSERT INTO activity_logs (
+                report_id,
+                match_id,
+                moderator_id,
+                action
+            )
+            VALUES
+                (?, ?, NULL, ?),
+                (?, ?, NULL, ?)`,
+            [
+                lostReportId,
+                result.insertId,
+                "potential_match_flagged",
+                foundReportId,
+                result.insertId,
+                "potential_match_flagged"
+            ]
+        );
+
         await connection.query(
             `UPDATE item_reports
              SET report_status = 'under_review'

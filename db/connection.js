@@ -6,7 +6,10 @@ const pool = mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME
+    database: process.env.DB_NAME,
+
+    // Fix for Alex: keep date values as strings so they don't shift by timezone
+    dateStrings: true
 });
 
 // Other backend files can import this pool when they need to query MySQL
