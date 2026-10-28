@@ -167,13 +167,19 @@ function fullReference(value) {
   return "LFIF-" + normaliseReference(value);
 }
 
-// Shows a date like "26 Oct 2026" in local time. The backend sends dates in UTC
-// (midnight in NZ is 11am the day before), so cutting up the text would be a day out.
+// Turns a date from the backend into a Date in local time. Plain dates
+// ("2026-10-26") and MySQL times ("2026-10-26 12:40:52") have no time zone,
+// so they're read as local; UTC times ending in Z still work too.
+function toDate(value) {
+  const text = String(value);
+  return /^\d{4}-\d{2}-\d{2}$/.test(text)
+    ? new Date(text + "T00:00")
+    : new Date(text.replace(" ", "T"));
+}
+
+// Shows a date like "26 Oct 2026".
 function formatDate(value) {
-  const date = /^\d{4}-\d{2}-\d{2}$/.test(value)
-    ? new Date(value + "T00:00")
-    : new Date(value);
-  return date.toLocaleDateString("en-NZ", {
+  return toDate(value).toLocaleDateString("en-NZ", {
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -406,7 +412,7 @@ const PHOTO_ICON =
 
 // Turns a time into "5 hours" or "4 days", counting from now.
 function timeSince(value) {
-  const hours = Math.max(0, (Date.now() - new Date(value)) / 36e5);
+  const hours = Math.max(0, (Date.now() - toDate(value)) / 36e5);
   if (hours < 1) return "Under an hour";
   if (hours < 24) return Math.floor(hours) + (hours < 2 ? " hour" : " hours");
   const days = Math.floor(hours / 24);
@@ -439,7 +445,7 @@ function matchRow(match) {
   const closed = status === "collected" || status === "not-a-match";
   const score = Math.round(match.total_score);
   const scoreClass = closed ? "closed" : score >= 70 ? "high" : "mid";
-  const days = (Date.now() - new Date(match.created_at)) / 864e5;
+  const days = (Date.now() - toDate(match.created_at)) / 864e5;
   const labels = {
     "needs-review": "Needs review",
     approved: "Approved",
@@ -523,11 +529,11 @@ function initMatchFilter() {
         ["needs-review", "approved"].includes(matchStatus(m)),
       );
       const closed = matches.filter((m) => !open.includes(m));
-      open.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+      open.sort((a, b) => toDate(a.created_at) - toDate(b.created_at));
       closed.sort(
         (a, b) =>
-          new Date(b.reviewed_at || b.created_at) -
-          new Date(a.reviewed_at || a.created_at),
+          toDate(b.reviewed_at || b.created_at) -
+          toDate(a.reviewed_at || a.created_at),
       );
       empty.insertAdjacentHTML(
         "beforebegin",
@@ -540,7 +546,7 @@ function initMatchFilter() {
       document.getElementById("stat-late").textContent = matches.filter(
         (m) =>
           matchStatus(m) === "needs-review" &&
-          (Date.now() - new Date(m.created_at)) / 864e5 > 3,
+          (Date.now() - toDate(m.created_at)) / 864e5 > 3,
       ).length;
       document.getElementById("stat-approved").textContent = count("approved");
       document.getElementById("stat-collected").textContent =
@@ -601,8 +607,11 @@ function reportCard(report, other, kind) {
   const match = (field) =>
     sameValue(report[field], other[field]) ? "match" : "";
 
-  // Found reports also show whether the item has reached the office.
-  let meta = STATUS_LABELS[report.report_status] || "";
+  // Filed date and status; Found reports also show if the item reached the office.
+  let meta =
+    (report.created_at
+      ? "Filed " + formatDate(report.created_at) + " · "
+      : "") + (STATUS_LABELS[report.report_status] || "");
   if (!lost) {
     meta += report.received_at
       ? " · Received " + formatDate(report.received_at)
@@ -786,10 +795,8 @@ function initReviewMatch() {
 
 // --- Verify Claimant ---------------------------------------------------------
 
-// Placeholder details for Lost Report LFIF-205874 until the backend does the check.
-const PLACEHOLDER_CLAIM = { reference: "205874", contact: "m.reyes@ac.nz" };
-
-// Checks the Claimant's details and releases the item if they match.
+// Checks the Claimant's details against the Lost Report in the backend.
+// The backend logs claim_verified or claim_verification_failed either way.
 function initVerifyClaimant() {
   const form = document.getElementById("verify-form");
   if (!form) return;
@@ -797,20 +804,40 @@ function initVerifyClaimant() {
   const reference = document.getElementById("claim-reference");
   const contact = document.getElementById("claim-contact");
   const error = document.getElementById("verify-error");
+  const errorText = error.querySelector(".banner__text");
+  const submit = form.querySelector('button[type="submit"]');
 
-  form.addEventListener("submit", (event) => {
+  form.addEventListener("submit", async (event) => {
     event.preventDefault();
+    error.hidden = true;
+    submit.disabled = true;
 
-    const referenceOk =
-      normaliseReference(reference.value) === PLACEHOLDER_CLAIM.reference;
-    const contactOk =
-      contact.value.replace(/\s/g, "").toLowerCase() ===
-      PLACEHOLDER_CLAIM.contact;
+    try {
+      const response = await fetch("/api/moderator/claims/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({
+          reference_code: fullReference(reference.value),
+          contact_detail: contact.value.trim(),
+        }),
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || "Unable to verify the Claimant.");
+      }
 
-    if (referenceOk && contactOk) {
-      window.location.href = "view.html?status=collected";
-    } else {
+      if (result.verified) {
+        alert("Claimant verified.");
+      } else {
+        errorText.textContent = "These details don't match the Lost Report.";
+        error.hidden = false;
+      }
+    } catch (verifyError) {
+      errorText.textContent = verifyError.message;
       error.hidden = false;
+    } finally {
+      submit.disabled = false;
     }
   });
 
