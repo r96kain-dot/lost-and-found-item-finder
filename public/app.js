@@ -524,20 +524,25 @@ function initMatchFilter() {
       return response.json();
     })
     .then(({ matches }) => {
-      // Open matches first, longest wait first ("Waiting ↓"), then closed ones.
-      const open = matches.filter((m) =>
-        ["needs-review", "approved"].includes(matchStatus(m)),
-      );
-      const closed = matches.filter((m) => !open.includes(m));
-      open.sort((a, b) => toDate(a.created_at) - toDate(b.created_at));
-      closed.sort(
-        (a, b) =>
-          toDate(b.reviewed_at || b.created_at) -
-          toDate(a.reviewed_at || a.created_at),
-      );
+      // Needs review first, then Approved, each longest wait first
+      // ("Waiting ↓"), then the closed ones, most recent first.
+      const byWait = (a, b) => toDate(a.created_at) - toDate(b.created_at);
+      const waiting = matches
+        .filter((m) => matchStatus(m) === "needs-review")
+        .sort(byWait);
+      const approved = matches
+        .filter((m) => matchStatus(m) === "approved")
+        .sort(byWait);
+      const closed = matches
+        .filter((m) => !waiting.includes(m) && !approved.includes(m))
+        .sort(
+          (a, b) =>
+            toDate(b.reviewed_at || b.created_at) -
+            toDate(a.reviewed_at || a.created_at),
+        );
       empty.insertAdjacentHTML(
         "beforebegin",
-        [...open, ...closed].map(matchRow).join(""),
+        [...waiting, ...approved, ...closed].map(matchRow).join(""),
       );
 
       const count = (s) => matches.filter((m) => matchStatus(m) === s).length;
