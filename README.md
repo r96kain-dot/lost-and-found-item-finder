@@ -1,4 +1,4 @@
-<img width="768" height="608" alt="image" src="https://github.com/user-attachments/assets/27937454-75d5-4d80-a56a-0f54707616c3" /># Lost & Found Item Finder
+## Lost & Found Item Finder
 
 ## Team
 - Jonathon Kim - Scrum Master + Backend Assistance
