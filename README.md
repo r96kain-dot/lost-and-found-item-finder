@@ -1,5 +1,4 @@
 # Lost & Found Item Finder
-SD203 Investigative Studio 1 Assessment
 
 ## Team
 - Jonathon Kim - Scrum Master + Backend Assistance
@@ -25,5 +24,5 @@ SD203 Investigative Studio 1 Assessment
 6. Start the application with: npm run dev
 7. Open: http://localhost:3000
 
-##DB Name
+## DB Name
 lost_found_db
