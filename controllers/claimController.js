@@ -3,7 +3,6 @@ const { verifyClaimant } = require("../services/claimService");
 
 // Passes claimant details to the claim service and returns the result
 async function verifyClaim(req, res) {
-    console.log("VERIFY CLAIM HIT:", req.body);
 
     try {
         const moderatorId = req.session.moderatorId;
