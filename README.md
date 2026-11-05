@@ -27,6 +27,7 @@
 ## Account Creation
 1. Run node scripts/createModerator.js to create a simple moderator account for MVP
 2. Follow terminal prompts to enter an email and password. This is your Moderator login.
+
 Things to know about Accounts currently:
 - Write down your password, recovery isn't supported yet.
 - Mod emails can be found in the moderators table, and actions with mod ID in activity_logs to help identify who preformed them
