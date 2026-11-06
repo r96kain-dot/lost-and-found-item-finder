@@ -4,6 +4,9 @@ const requireModerator = require("../middleware/requireModerator");
 const { listMatches, getMatch, reviewMatch } = require("../controllers/matchReviewController");
 const { verifyClaim } = require("../controllers/claimController");
 
+const { receive, collect } = require("../controllers/itemController"); 
+//this better work. JK.
+
 const router = express.Router();
 
 // All routes are private, login route will set moderatorId in the session
@@ -15,5 +18,9 @@ router.post("/matches/:matchId/review", reviewMatch);
 
 // Checks claimant details before the item is handed over
 router.post("/claims/verify", verifyClaim);
+
+// Item management routes. Past ZZZzzzZ time......... but let's get it done.
+router.post("/items/receive", receive);
+router.post("/items/collect", collect);
 
 module.exports = router;
