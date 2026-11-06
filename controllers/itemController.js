@@ -42,13 +42,13 @@ const result = await operation(pool, {
 module.exports = {
     // Get the found report ID from the URL.
     receive: handler(receiveItem, req => ({
-        reportId: Number(req.params.reportId)
+        matchId: Number(req.params.matchId),
     })),
 
     //match ID and claimiant's sub details
     collect: handler(collectItem, req => ({
-        reportId: Number(req.params.reportId),
-         referenceCode: req.body?.reference_code,
+        matchId: Number(req.params.matchId),
+        referenceCode: req.body?.reference_code,
         contactDetail: req.body?.contact_detail
     }))
 };

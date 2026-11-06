@@ -20,7 +20,7 @@ router.post("/matches/:matchId/review", reviewMatch);
 router.post("/claims/verify", verifyClaim);
 
 // Item management routes. Past ZZZzzzZ time......... but let's get it done.
-router.post("/items/receive", receive);
-router.post("/items/collect", collect);
+router.post("/items/receive/:reportId", receive);
+router.post("/items/collect/:matchId", collect);
 
 module.exports = router;

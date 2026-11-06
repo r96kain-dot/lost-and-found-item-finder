@@ -97,7 +97,7 @@ async function receiveItem(pool, { reportId, moderatorId }) {
             if (
                 !lost ||
                 lost.report_type !== "lost" ||
-                lost.report_status !== "matched" ||
+                !["matched", "ready_to_collect"].includes(lost.report_status) ||
                 found.report_status !== "matched"
             ) {
                 throw fail(
