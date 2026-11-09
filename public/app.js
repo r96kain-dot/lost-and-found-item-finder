@@ -402,13 +402,6 @@ function escapeHtml(value) {
   );
 }
 
-// The photo icon used in the table thumbnails.
-const PHOTO_ICON =
-  '<svg class="photo-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" ' +
-  'stroke="currentColor" stroke-width="2" stroke-linecap="round" ' +
-  'stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" ' +
-  'height="16" rx="2" /><circle cx="9" cy="10" r="2" /><path d="M21 16l-5-5-9 9" /></svg>';
-
 // Turns a time into "5 hours" or "4 days", counting from now.
 function timeSince(value) {
   const hours = Math.max(0, (Date.now() - toDate(value)) / 36e5);
@@ -426,16 +419,13 @@ function matchStatus(match) {
   return "needs-review";
 }
 
-// One report's cell: photo thumbnail, item and colour, reference and area.
+// One report's cell: item and colour, then reference and area.
 function matchReportCell(report) {
-  const thumb = report.has_photo
-    ? `<span class="thumb" role="img" aria-label="Photo">${PHOTO_ICON}</span>`
-    : '<span class="thumb thumb--none" role="img" aria-label="No photo"></span>';
-  return `<td><div class="match-report">${thumb}<div><strong>${escapeHtml(
+  return `<td><div class="match-report"><strong>${escapeHtml(
     report.item_type,
   )} — ${escapeHtml(report.colour)}</strong><span>${escapeHtml(
     report.reference_code,
-  )} · ${escapeHtml(report.area)}</span></div></div></td>`;
+  )} · ${escapeHtml(report.area)}</span></div></td>`;
 }
 
 // Builds a table row for one match, in the same layout as the designs.
@@ -625,11 +615,6 @@ function reportCard(report, other, kind) {
   const brand = report.brand_model
     ? text(report.brand_model)
     : '<span class="report-card__empty">Not entered</span>';
-  const photo = `<span><span class="report-card__photo"><span class="thumb${
-    report.has_photo ? "" : " thumb--none"
-  }" aria-hidden="true">${report.has_photo ? PHOTO_ICON : ""}</span><span>${
-    report.has_photo ? "Photo added with the report" : "No photo"
-  }<span class="report-card__hint">Not scored. Compare them yourself.</span></span></span></span>`;
   const notes = `<span><span class="report-card__plain">${escapeHtml(
     report.notes || "No notes",
   )}</span><span class="report-card__hint">Not scored. Read both before you confirm.</span></span>`;
@@ -647,7 +632,6 @@ function reportCard(report, other, kind) {
       text(formatDate(report.item_date)),
       days === 0 ? "match" : days <= 3 ? "partial" : "",
     ),
-    row("Photo", photo),
     row("Notes", notes),
     lost ? row("Contact", contact) : "",
   ];
