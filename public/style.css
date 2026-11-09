@@ -611,17 +611,6 @@ legend {
   gap: var(--space-2);
 }
 
-/* The picture icon used on the report cards. */
-.photo-icon {
-  width: 2rem;
-  height: 2rem;
-}
-
-.thumb .photo-icon {
-  width: 1.75rem;
-  height: 1.75rem;
-}
-
 .report-form__footer {
   display: flex;
   align-items: center;
@@ -1021,30 +1010,6 @@ legend {
   color: var(--color-text-muted);
 }
 
-/* Photo thumbnail: an image icon, or a dashed box with a dash for no photo. */
-.thumb {
-  display: grid;
-  flex-shrink: 0;
-  place-items: center;
-  width: 3.5rem;
-  height: 3.5rem;
-  border-radius: var(--radius-sm);
-  background: var(--color-border-light);
-  color: var(--color-text-muted);
-}
-
-.thumb--none {
-  border: 2px dashed var(--color-border);
-  background: none;
-}
-
-.thumb--none::before {
-  content: "";
-  width: 1rem;
-  height: 2px;
-  background: var(--color-text-faint);
-}
-
 /* Table for Potential Matches and the Activity Log. position: relative stops
    hidden text from making the page wider. */
 .table-wrap {
@@ -1162,13 +1127,6 @@ legend {
 .report-card__empty {
   color: var(--color-text-faint);
   font-style: italic;
-  font-weight: var(--font-weight-regular);
-}
-
-.report-card__photo {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
   font-weight: var(--font-weight-regular);
 }
 
