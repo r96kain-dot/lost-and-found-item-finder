@@ -402,13 +402,6 @@ function escapeHtml(value) {
   );
 }
 
-// The photo icon used on the Review Match cards.
-const PHOTO_ICON =
-  '<svg class="photo-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" ' +
-  'stroke="currentColor" stroke-width="2" stroke-linecap="round" ' +
-  'stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" ' +
-  'height="16" rx="2" /><circle cx="9" cy="10" r="2" /><path d="M21 16l-5-5-9 9" /></svg>';
-
 // Turns a time into "5 hours" or "4 days", counting from now.
 function timeSince(value) {
   const hours = Math.max(0, (Date.now() - toDate(value)) / 36e5);
@@ -622,11 +615,6 @@ function reportCard(report, other, kind) {
   const brand = report.brand_model
     ? text(report.brand_model)
     : '<span class="report-card__empty">Not entered</span>';
-  const photo = `<span><span class="report-card__photo"><span class="thumb${
-    report.has_photo ? "" : " thumb--none"
-  }" aria-hidden="true">${report.has_photo ? PHOTO_ICON : ""}</span><span>${
-    report.has_photo ? "Photo added with the report" : "No photo"
-  }<span class="report-card__hint">Not scored. Compare them yourself.</span></span></span></span>`;
   const notes = `<span><span class="report-card__plain">${escapeHtml(
     report.notes || "No notes",
   )}</span><span class="report-card__hint">Not scored. Read both before you confirm.</span></span>`;
@@ -644,7 +632,6 @@ function reportCard(report, other, kind) {
       text(formatDate(report.item_date)),
       days === 0 ? "match" : days <= 3 ? "partial" : "",
     ),
-    row("Photo", photo),
     row("Notes", notes),
     lost ? row("Contact", contact) : "",
   ];
