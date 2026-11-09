@@ -67,8 +67,7 @@ function initReportForm() {
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
 
-    // Same names as the item_reports columns. The photo isn't sent yet,
-    // since the backend doesn't take uploads.
+    // Same names as the item_reports columns.
     const data = new FormData(form);
     const report = {
       report_type: data.get("report_type"),
