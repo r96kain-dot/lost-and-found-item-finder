@@ -402,7 +402,7 @@ function escapeHtml(value) {
   );
 }
 
-// The photo icon used in the table thumbnails.
+// The photo icon used on the Review Match cards.
 const PHOTO_ICON =
   '<svg class="photo-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" ' +
   'stroke="currentColor" stroke-width="2" stroke-linecap="round" ' +
@@ -426,16 +426,13 @@ function matchStatus(match) {
   return "needs-review";
 }
 
-// One report's cell: photo thumbnail, item and colour, reference and area.
+// One report's cell: item and colour, then reference and area.
 function matchReportCell(report) {
-  const thumb = report.has_photo
-    ? `<span class="thumb" role="img" aria-label="Photo">${PHOTO_ICON}</span>`
-    : '<span class="thumb thumb--none" role="img" aria-label="No photo"></span>';
-  return `<td><div class="match-report">${thumb}<div><strong>${escapeHtml(
+  return `<td><div class="match-report"><strong>${escapeHtml(
     report.item_type,
   )} — ${escapeHtml(report.colour)}</strong><span>${escapeHtml(
     report.reference_code,
-  )} · ${escapeHtml(report.area)}</span></div></div></td>`;
+  )} · ${escapeHtml(report.area)}</span></div></td>`;
 }
 
 // Builds a table row for one match, in the same layout as the designs.
