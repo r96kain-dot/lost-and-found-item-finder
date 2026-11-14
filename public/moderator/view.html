@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="../style.css" />
     <script src="../app.js" defer></script>
   </head>
-  <body data-show-param="status" data-show-default="collected">
+  <body>
     <header class="site-header">
       <div class="site-header__inner">
         <div class="site-header__start">
@@ -58,8 +58,7 @@
       </div>
     </header>
 
-    <!-- Placeholder case. ?status=approved shows it before collection,
-         ?status=collected (the default) shows it after. -->
+    <!-- Filled in by app.js from the match chosen on Potential Matches (?match=ID). -->
     <main class="page page--moderator">
       <a class="back-link" href="matches.html"
         ><svg
@@ -77,39 +76,21 @@
         >Potential Matches</a
       >
       <div class="mod-heading mod-heading__title">
-        <h1>Umbrella — Black</h1>
-        <span
-          class="badge badge--status badge--approved"
-          data-show-for="approved"
-          hidden
-          >Approved</span
-        >
-        <span
-          class="badge badge--status badge--collected"
-          data-show-for="collected"
-          hidden
-          >Collected</span
-        >
+        <h1 id="view-title">Match</h1>
+        <span class="badge badge--status" id="view-status" hidden></span>
       </div>
 
-      <div class="banner banner--info" data-show-for="approved" hidden>
-        <p class="banner__text">
-          Match approved on 23 Aug 2026. Verify the Claimant when they come to
-          collect the item.
-        </p>
-        <a
-          class="button button--primary button--small"
-          href="verify-claimant.html"
-          >Verify claimant</a
-        >
-      </div>
-      <div class="banner banner--success" data-show-for="collected" hidden>
+      <!-- Where the match is up to, with the next step (Review or Verify
+           claimant). Also shows errors. -->
+      <div class="banner" id="view-banner" role="status" hidden>
         <svg
           class="banner__icon"
+          id="view-banner-icon"
           width="32"
           height="32"
           viewBox="0 0 32 32"
           aria-hidden="true"
+          hidden
         >
           <circle cx="16" cy="16" r="16" fill="currentColor" />
           <path
@@ -121,112 +102,20 @@
             stroke-linejoin="round"
           />
         </svg>
-        <p class="banner__text">
-          Released to the owner on 24 Aug 2026 at 15:20 by
-          a.ceniza@lostfound.app.<br />At the Main Office
-        </p>
+        <p class="banner__text" id="view-banner-text"></p>
+        <a
+          class="button button--primary button--small"
+          id="view-link"
+          href="matches.html"
+          hidden
+        ></a>
       </div>
 
-      <div class="report-pair">
-        <section
-          class="card report-card report-card--lost"
-          aria-labelledby="report-205874"
-        >
-          <div class="report-card__header">
-            <span class="badge badge--lost">Lost</span>
-            <div>
-              <h2 id="report-205874">Report LFIF-205874</h2>
-              <p>Filed 21 Aug 2026 · m.reyes@ac.nz</p>
-            </div>
-          </div>
-          <dl class="report-card__rows">
-            <div class="report-card__row">
-              <dt>Item type</dt>
-              <dd><span>Umbrella</span></dd>
-            </div>
-            <div class="report-card__row">
-              <dt>Brand / Model</dt>
-              <dd><span>Blunt</span></dd>
-            </div>
-            <div class="report-card__row">
-              <dt>Colour</dt>
-              <dd><span>Black</span></dd>
-            </div>
-            <div class="report-card__row">
-              <dt>Area</dt>
-              <dd><span>Level 2 — Lecture hall B</span></dd>
-            </div>
-            <div class="report-card__row">
-              <dt>Date lost</dt>
-              <dd><span>21 Aug 2026</span></dd>
-            </div>
-            <div class="report-card__row">
-              <dt>Notes</dt>
-              <dd>
-                <span
-                  ><span class="report-card__plain"
-                    >Blunt umbrella, one rib is bent and the strap is
-                    missing.</span
-                  ><span
-                    class="report-card__hint"
-                    data-show-for="collected"
-                    hidden
-                    >The bent rib is what closed this case.</span
-                  ></span
-                >
-              </dd>
-            </div>
-          </dl>
-        </section>
-        <section
-          class="card report-card report-card--found"
-          aria-labelledby="report-918342"
-        >
-          <div class="report-card__header">
-            <span class="badge badge--found">Found</span>
-            <div>
-              <h2 id="report-918342">Report LFIF-918342</h2>
-              <p>Filed 22 Aug 2026 · Received 22 Aug 2026</p>
-            </div>
-          </div>
-          <dl class="report-card__rows">
-            <div class="report-card__row">
-              <dt>Item type</dt>
-              <dd><span>Umbrella</span></dd>
-            </div>
-            <div class="report-card__row">
-              <dt>Brand / Model</dt>
-              <dd>
-                <span><span class="report-card__empty">Not entered</span></span>
-              </dd>
-            </div>
-            <div class="report-card__row">
-              <dt>Colour</dt>
-              <dd><span>Black</span></dd>
-            </div>
-            <div class="report-card__row">
-              <dt>Area</dt>
-              <dd><span>Level 2 — Lecture hall B</span></dd>
-            </div>
-            <div class="report-card__row">
-              <dt>Date found</dt>
-              <dd><span>22 Aug 2026</span></dd>
-            </div>
-            <div class="report-card__row">
-              <dt>Notes</dt>
-              <dd>
-                <span
-                  ><span class="report-card__plain"
-                    >Black umbrella, bent rib on one side. No name on it.</span
-                  ></span
-                >
-              </dd>
-            </div>
-          </dl>
-        </section>
-      </div>
+      <div class="report-pair" id="view-pair"></div>
 
-      <section class="activity" aria-labelledby="activity-title">
+      <!-- Built from the match's dates for now. The full Activity Log needs a
+           backend route (asked Richard). -->
+      <section class="activity" aria-labelledby="activity-title" hidden>
         <h2 id="activity-title">Activity on this match</h2>
         <div class="table-wrap">
           <table class="table activity-table">
@@ -238,56 +127,7 @@
                 <th scope="col">Detail</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td>21 Aug, 09:14</td>
-                <td>
-                  <span class="event event--lost">Report submitted · Lost</span>
-                </td>
-                <td>Reporter</td>
-                <td>LFIF-205874 filed. Contact by email.</td>
-              </tr>
-              <tr>
-                <td>22 Aug, 11:02</td>
-                <td>
-                  <span class="event event--found"
-                    >Report submitted · Found</span
-                  >
-                </td>
-                <td>Reporter</td>
-                <td>Found Report LFIF-918342 filed.</td>
-              </tr>
-              <tr>
-                <td>22 Aug, 11:03</td>
-                <td><span class="event event--flagged">Match flagged</span></td>
-                <td>System</td>
-                <td>Scored 58%. Brand / Model missing on the Found Report.</td>
-              </tr>
-              <tr>
-                <td>22 Aug, 11:30</td>
-                <td><span class="event event--found">Item received</span></td>
-                <td>a.ceniza@lostfound.app</td>
-                <td>Umbrella handed in at the Main Office.</td>
-              </tr>
-              <tr>
-                <td>23 Aug, 09:40</td>
-                <td><span class="event">Match approved</span></td>
-                <td>a.ceniza@lostfound.app</td>
-                <td>Notes match. Emailed the owner to arrange collection.</td>
-              </tr>
-              <tr data-show-for="collected" hidden>
-                <td>24 Aug, 15:18</td>
-                <td><span class="event">Claim verified</span></td>
-                <td>a.ceniza@lostfound.app</td>
-                <td>Photo ID, Reference Number and Contact Detail checked.</td>
-              </tr>
-              <tr data-show-for="collected" hidden>
-                <td>24 Aug, 15:20</td>
-                <td><span class="event">Item collected</span></td>
-                <td>a.ceniza@lostfound.app</td>
-                <td>Owner named the bent rib. Item handed over.</td>
-              </tr>
-            </tbody>
+            <tbody id="activity-rows"></tbody>
           </table>
         </div>
       </section>

@@ -128,7 +128,7 @@ function initSubmittedReport() {
 // --- Show or hide parts of a page from the URL -------------------------------
 
 // Shows elements whose data-show-for matches the URL, e.g. ?report_type=found on
-// Report Submitted or ?status=collected on the moderator View page.
+// Report Submitted.
 function initShowFor() {
   const parts = document.querySelectorAll("[data-show-for]");
   if (parts.length === 0) return;
@@ -419,6 +419,14 @@ function matchStatus(match) {
   return "needs-review";
 }
 
+// Match Status values as words.
+const MATCH_LABELS = {
+  "needs-review": "Needs review",
+  approved: "Approved",
+  collected: "Collected",
+  "not-a-match": "Not a match",
+};
+
 // One report's cell: item and colour, then reference and area.
 function matchReportCell(report) {
   return `<td><div class="match-report"><strong>${escapeHtml(
@@ -435,12 +443,6 @@ function matchRow(match) {
   const score = Math.round(match.total_score);
   const scoreClass = closed ? "closed" : score >= 70 ? "high" : "mid";
   const days = (Date.now() - toDate(match.created_at)) / 864e5;
-  const labels = {
-    "needs-review": "Needs review",
-    approved: "Approved",
-    collected: "Collected",
-    "not-a-match": "Not a match",
-  };
 
   let waiting = escapeHtml(timeSince(match.created_at));
   if (closed) {
@@ -455,9 +457,7 @@ function matchRow(match) {
   const action =
     status === "needs-review"
       ? `<a class="button button--primary button--small" href="review-match.html?match=${match.match_id}">Review</a>`
-      : `<a class="button button--secondary button--small" href="view.html?match=${match.match_id}&amp;status=${
-          status === "approved" ? "approved" : "collected"
-        }">View</a>`;
+      : `<a class="button button--secondary button--small" href="view.html?match=${match.match_id}">View</a>`;
 
   const references = [match.lost_report, match.found_report]
     .map((r) => normaliseReference(r.reference_code))
@@ -467,7 +467,7 @@ function matchRow(match) {
   }>${matchReportCell(match.lost_report)}${matchReportCell(
     match.found_report,
   )}<td><span class="score score--${scoreClass}" style="--score: ${score}%">${score}%</span></td><td>${waiting}</td><td><span class="badge badge--status badge--${status}">${
-    labels[status]
+    MATCH_LABELS[status]
   }</span></td><td>${action}</td></tr>`;
 }
 
@@ -585,8 +585,9 @@ function daysApart(a, b) {
   );
 }
 
-// One report card: header, then a row per field with a tick when both match.
-function reportCard(report, other, kind) {
+// One report card: header, then a row per field. Review Match compares the two
+// reports (a tick when both match); View passes compare = false to leave it out.
+function reportCard(report, other, kind, compare = true) {
   const lost = kind === "lost";
   const days = daysApart(report.item_date, other.item_date);
   const icon = (state) =>
@@ -596,7 +597,9 @@ function reportCard(report, other, kind) {
         ? `<span class="field-result field-result--partial" role="img" aria-label="Partial match">${DASH_ICON}</span>`
         : "";
   const row = (label, value, state) =>
-    `<div class="report-card__row"><dt>${label}</dt><dd>${value}${icon(state)}</dd></div>`;
+    `<div class="report-card__row"><dt>${label}</dt><dd>${value}${
+      compare ? icon(state) : ""
+    }</dd></div>`;
   const text = (value) => `<span>${escapeHtml(value)}</span>`;
   const match = (field) =>
     sameValue(report[field], other[field]) ? "match" : "";
@@ -615,9 +618,12 @@ function reportCard(report, other, kind) {
   const brand = report.brand_model
     ? text(report.brand_model)
     : '<span class="report-card__empty">Not entered</span>';
+  const hint = compare
+    ? '<span class="report-card__hint">Not scored. Read both before you confirm.</span>'
+    : "";
   const notes = `<span><span class="report-card__plain">${escapeHtml(
     report.notes || "No notes",
-  )}</span><span class="report-card__hint">Not scored. Read both before you confirm.</span></span>`;
+  )}</span>${hint}</span>`;
   const contact = `<span><span class="report-card__plain">${escapeHtml(
     report.contact_detail,
   )}</span></span>`;
@@ -669,6 +675,24 @@ function matchSummary(lost, found) {
   return "Same " + list + ", " + when;
 }
 
+// Gets one match from the backend (Review Match and View).
+function fetchMatch(matchId) {
+  const url = "/api/moderator/matches/" + encodeURIComponent(matchId);
+  return fetch(url, { credentials: "same-origin" })
+    .then((response) => {
+      if (response.status === 404) {
+        throw new Error("That match couldn't be found.");
+      }
+      if (!response.ok) {
+        throw new Error(
+          "We couldn't load this match. Please refresh the page.",
+        );
+      }
+      return response.json();
+    })
+    .then((data) => data.match);
+}
+
 // Loads the chosen match, fills the page, and saves the Moderator's decision.
 function initReviewMatch() {
   const pair = document.getElementById("report-pair");
@@ -700,19 +724,8 @@ function initReviewMatch() {
   }
   const url = "/api/moderator/matches/" + encodeURIComponent(matchId);
 
-  fetch(url, { credentials: "same-origin" })
-    .then((response) => {
-      if (response.status === 404) {
-        throw new Error("That match couldn't be found.");
-      }
-      if (!response.ok) {
-        throw new Error(
-          "We couldn't load this match. Please refresh the page.",
-        );
-      }
-      return response.json();
-    })
-    .then(({ match }) => {
+  fetchMatch(matchId)
+    .then((match) => {
       const score = Math.round(match.automatic_score);
       const ring = document.getElementById("score-ring");
       ring.style.setProperty("--score", score + "%");
@@ -781,6 +794,174 @@ function initReviewMatch() {
   );
 }
 
+// --- View --------------------------------------------------------------------
+
+// Shows a time like "21 Aug, 09:14".
+function formatTime(value) {
+  const date = toDate(value);
+  return (
+    date.toLocaleDateString("en-NZ", { day: "numeric", month: "short" }) +
+    ", " +
+    date.toLocaleTimeString("en-NZ", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    })
+  );
+}
+
+// The match's events in time order. Built from its dates until the backend
+// sends the Activity Log.
+function activityRows(match) {
+  const lost = match.lost_report;
+  const found = match.found_report;
+  const events = [
+    {
+      when: lost.created_at,
+      event: "Report submitted · Lost",
+      kind: "lost",
+      by: "Reporter",
+      detail:
+        lost.reference_code +
+        " filed." +
+        (lost.contact_method ? " Contact by " + lost.contact_method + "." : ""),
+    },
+    {
+      when: found.created_at,
+      event: "Report submitted · Found",
+      kind: "found",
+      by: "Reporter",
+      detail: "Found Report " + found.reference_code + " filed.",
+    },
+    {
+      when: match.created_at,
+      event: "Match flagged",
+      kind: "flagged",
+      by: "System",
+      detail: "Scored " + Math.round(match.automatic_score) + "%.",
+    },
+    {
+      when: found.received_at,
+      event: "Item received",
+      kind: "found",
+      by: "Moderator",
+      detail: "Handed in at the Main Office.",
+    },
+    {
+      when: match.reviewed_at,
+      event: match.decision === "approved" ? "Match approved" : "Not a match",
+      by: "Moderator",
+      detail: "Total score " + Math.round(match.total_score) + "%.",
+    },
+  ];
+
+  return events
+    .filter((e) => e.when)
+    .sort((a, b) => toDate(a.when) - toDate(b.when))
+    .map(
+      (e) =>
+        `<tr><td>${escapeHtml(formatTime(e.when))}</td><td><span class="event${
+          e.kind ? " event--" + e.kind : ""
+        }">${escapeHtml(e.event)}</span></td><td>${e.by}</td><td>${escapeHtml(
+          e.detail,
+        )}</td></tr>`,
+    )
+    .join("");
+}
+
+// Loads the chosen match and shows where it's up to, with the next step.
+function initView() {
+  const pair = document.getElementById("view-pair");
+  if (!pair) return;
+
+  const matchId = new URLSearchParams(window.location.search).get("match");
+  const banner = document.getElementById("view-banner");
+  const link = document.getElementById("view-link");
+  let match;
+
+  // Shows the banner, with a link button if the next step is another page.
+  function showBanner(kind, text, linkText = "", linkHref = "") {
+    banner.className = "banner banner--" + kind;
+    document.getElementById("view-banner-text").textContent = text;
+    // An <svg> has no .hidden property, so set the attribute itself.
+    document
+      .getElementById("view-banner-icon")
+      .toggleAttribute("hidden", kind !== "success");
+    link.textContent = linkText;
+    link.href = linkHref || "matches.html";
+    link.hidden = !linkText;
+    banner.hidden = false;
+  }
+
+  // Fills the page from the match.
+  function render() {
+    const lost = match.lost_report;
+    const found = match.found_report;
+    const status = matchStatus(match);
+    const badge = document.getElementById("view-status");
+
+    document.getElementById("view-title").textContent =
+      lost.item_type + " — " + lost.colour;
+    badge.className = "badge badge--status badge--" + status;
+    badge.textContent = MATCH_LABELS[status];
+    badge.hidden = false;
+    pair.innerHTML =
+      reportCard(lost, found, "lost", false) +
+      reportCard(found, lost, "found", false);
+    document.getElementById("activity-rows").innerHTML = activityRows(match);
+    document.querySelector(".activity").hidden = false;
+
+    const reviewed = match.reviewed_at
+      ? " on " + formatDate(match.reviewed_at)
+      : "";
+    if (status === "needs-review") {
+      showBanner(
+        "info",
+        "This match hasn't been reviewed yet.",
+        "Review",
+        "review-match.html?match=" + match.match_id,
+      );
+    } else if (status === "not-a-match") {
+      showBanner("info", "Marked as not a match" + reviewed + ".");
+    } else if (status === "collected") {
+      showBanner("success", "Released to the owner. This case is closed.");
+    } else if (!found.received_at) {
+      showBanner(
+        "info",
+        "Match approved" +
+          reviewed +
+          ". The item hasn't been handed in at the Main Office yet.",
+      );
+    } else {
+      showBanner(
+        "info",
+        "Match approved" +
+          reviewed +
+          ". Item received on " +
+          formatDate(found.received_at) +
+          ". Verify the Claimant when they come to collect it.",
+        "Verify claimant",
+        "verify-claimant.html?match=" + match.match_id,
+      );
+    }
+  }
+
+  if (!matchId) {
+    showBanner(
+      "error",
+      "No match was chosen. Go back to Potential Matches and press View.",
+    );
+    return;
+  }
+
+  fetchMatch(matchId)
+    .then((data) => {
+      match = data;
+      render();
+    })
+    .catch((error) => showBanner("error", error.message));
+}
+
 // --- Verify Claimant ---------------------------------------------------------
 
 // Checks the Claimant's details against the Lost Report in the backend.
@@ -843,4 +1024,5 @@ initLogin();
 initModeratorSession();
 initMatchFilter();
 initReviewMatch();
+initView();
 initVerifyClaimant();
