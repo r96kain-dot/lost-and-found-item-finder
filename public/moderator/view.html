@@ -80,8 +80,8 @@
         <span class="badge badge--status" id="view-status" hidden></span>
       </div>
 
-      <!-- Where the match is up to, with the next step (Review or Verify
-           claimant). Also shows errors. -->
+      <!-- Where the match is up to, with the next step (Review, Mark as
+           received or Verify claimant). Also shows errors. -->
       <div class="banner" id="view-banner" role="status" hidden>
         <svg
           class="banner__icon"
@@ -109,6 +109,14 @@
           href="matches.html"
           hidden
         ></a>
+        <button
+          class="button button--primary button--small"
+          id="mark-received"
+          type="button"
+          hidden
+        >
+          Mark as received
+        </button>
       </div>
 
       <div class="report-pair" id="view-pair"></div>

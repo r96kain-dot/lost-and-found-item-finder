@@ -870,6 +870,7 @@ function activityRows(match) {
 }
 
 // Loads the chosen match and shows where it's up to, with the next step.
+// An approved match whose item isn't handed in yet gets Mark as received.
 function initView() {
   const pair = document.getElementById("view-pair");
   if (!pair) return;
@@ -877,6 +878,7 @@ function initView() {
   const matchId = new URLSearchParams(window.location.search).get("match");
   const banner = document.getElementById("view-banner");
   const link = document.getElementById("view-link");
+  const markReceived = document.getElementById("mark-received");
   let match;
 
   // Shows the banner, with a link button if the next step is another page.
@@ -890,6 +892,7 @@ function initView() {
     link.textContent = linkText;
     link.href = linkHref || "matches.html";
     link.hidden = !linkText;
+    markReceived.hidden = true;
     banner.hidden = false;
   }
 
@@ -932,6 +935,7 @@ function initView() {
           reviewed +
           ". The item hasn't been handed in at the Main Office yet.",
       );
+      markReceived.hidden = false;
     } else {
       showBanner(
         "info",
@@ -960,6 +964,27 @@ function initView() {
       render();
     })
     .catch((error) => showBanner("error", error.message));
+
+  // Records the item as handed in, then reloads to show Ready to collect.
+  markReceived.addEventListener("click", async () => {
+    markReceived.disabled = true;
+    try {
+      const response = await fetch(
+        "/api/moderator/items/receive/" +
+          encodeURIComponent(match.found_report.report_id),
+        { method: "POST", credentials: "same-origin" },
+      );
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || "Unable to mark the item as received.");
+      }
+      window.location.reload();
+    } catch (error) {
+      showBanner("error", error.message + " Please try again.");
+      markReceived.hidden = false;
+      markReceived.disabled = false;
+    }
+  });
 }
 
 // --- Verify Claimant ---------------------------------------------------------
