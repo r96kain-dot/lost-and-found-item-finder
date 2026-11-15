@@ -989,17 +989,76 @@ function initView() {
 
 // --- Verify Claimant ---------------------------------------------------------
 
-// Checks the Claimant's details against the Lost Report in the backend.
-// The backend logs claim_verified or claim_verification_failed either way.
+// Why a match can't be released yet, or "" if it can.
+function releaseBlocker(match) {
+  const status = matchStatus(match);
+  if (status === "collected") {
+    return "This item has already been released to its owner.";
+  }
+  if (status !== "approved") {
+    return "This match hasn't been approved, so the item can't be released.";
+  }
+  if (!match.found_report.received_at) {
+    return "The item hasn't been handed in yet. Mark it as received on the View page first.";
+  }
+  if (
+    match.lost_report.report_status !== "ready_to_collect" ||
+    match.found_report.report_status !== "ready_to_collect"
+  ) {
+    return "Both reports need to be Ready to collect before the item can be released.";
+  }
+  return "";
+}
+
+// Loads the chosen match, then Release item sends the Claimant's details to the
+// collect route. The backend checks them against the Lost Report (and logs the
+// check either way); if they match, both reports become Collected.
 function initVerifyClaimant() {
   const form = document.getElementById("verify-form");
   if (!form) return;
 
+  const matchId = new URLSearchParams(window.location.search).get("match");
   const reference = document.getElementById("claim-reference");
   const contact = document.getElementById("claim-contact");
+  const message = document.getElementById("verify-message");
   const error = document.getElementById("verify-error");
   const errorText = error.querySelector(".banner__text");
   const submit = form.querySelector('button[type="submit"]');
+  const viewUrl = "view.html?match=" + encodeURIComponent(matchId);
+
+  // Stops a release (no match, or it isn't ready) and says why.
+  function lock(text, kind = "error") {
+    message.textContent = text;
+    message.className = "banner banner--" + kind;
+    message.hidden = false;
+    submit.disabled = true;
+  }
+
+  if (!matchId) {
+    lock("No match was chosen. Open the match from Potential Matches first.");
+    return;
+  }
+
+  // Locked until the match has loaded.
+  submit.disabled = true;
+  fetchMatch(matchId)
+    .then((match) => {
+      const item =
+        match.lost_report.item_type + " — " + match.lost_report.colour;
+      document.getElementById("case-item").textContent = item;
+      document.getElementById("case-lost").textContent =
+        match.lost_report.reference_code;
+      document.getElementById("case-found").textContent =
+        match.found_report.reference_code;
+      document.getElementById("case-back-text").textContent = item;
+      document.getElementById("case-back").href = viewUrl;
+      document.getElementById("verify-cancel").href = viewUrl;
+
+      const blocker = releaseBlocker(match);
+      if (blocker) lock(blocker, "info");
+      else submit.disabled = false;
+    })
+    .catch((loadError) => lock(loadError.message));
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -1007,30 +1066,35 @@ function initVerifyClaimant() {
     submit.disabled = true;
 
     try {
-      const response = await fetch("/api/moderator/claims/verify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "same-origin",
-        body: JSON.stringify({
-          reference_code: fullReference(reference.value),
-          contact_detail: contact.value.trim(),
-        }),
-      });
+      const response = await fetch(
+        "/api/moderator/items/collect/" + encodeURIComponent(matchId),
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "same-origin",
+          body: JSON.stringify({
+            reference_code: fullReference(reference.value),
+            contact_detail: contact.value.trim(),
+          }),
+        },
+      );
       const result = await response.json();
+
+      // Wrong details come back as 400 with verified: false.
+      if (result.verified === false) {
+        throw new Error(
+          "These details don't match the Lost Report. Check them with the Claimant before releasing the item.",
+        );
+      }
       if (!response.ok) {
-        throw new Error(result.error || "Unable to verify the Claimant.");
+        throw new Error(result.error || "Unable to release the item.");
       }
 
-      if (result.verified) {
-        alert("Claimant verified.");
-      } else {
-        errorText.textContent = "These details don't match the Lost Report.";
-        error.hidden = false;
-      }
-    } catch (verifyError) {
-      errorText.textContent = verifyError.message;
+      // Released: View now shows the match as Collected.
+      window.location.assign(viewUrl);
+    } catch (releaseError) {
+      errorText.textContent = releaseError.message;
       error.hidden = false;
-    } finally {
       submit.disabled = false;
     }
   });

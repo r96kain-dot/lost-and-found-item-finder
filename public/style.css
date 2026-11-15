@@ -938,6 +938,12 @@ legend {
   background: #186340;
 }
 
+/* While a request is being sent, or when the action isn't allowed. */
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .button--small {
   min-height: 2.5rem;
   padding: 0 var(--space-5);
