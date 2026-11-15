@@ -58,8 +58,9 @@
       </div>
     </header>
 
+    <!-- Filled in by app.js from the match chosen on View (?match=ID). -->
     <main class="page page--moderator">
-      <a class="back-link" href="view.html?status=approved"
+      <a class="back-link" id="case-back" href="matches.html"
         ><svg
           width="16"
           height="16"
@@ -72,12 +73,20 @@
           aria-hidden="true"
         >
           <path d="M10 3L5 8l5 5" /></svg
-        >Umbrella — Black</a
+        ><span id="case-back-text">Potential Matches</span></a
       >
       <div class="mod-heading">
         <h1>Verify Claimant</h1>
         <p>Check the Claimant in person before the item leaves the counter.</p>
       </div>
+
+      <!-- Shown if the match can't be loaded or isn't ready to release. -->
+      <p
+        class="banner banner--error"
+        id="verify-message"
+        role="alert"
+        hidden
+      ></p>
 
       <div class="verify">
         <section
@@ -87,11 +96,11 @@
           <h2 id="case-title">This match</h2>
           <dl class="info-rows">
             <dt>Item</dt>
-            <dd>Umbrella — Black</dd>
+            <dd id="case-item">—</dd>
             <dt>Lost Report</dt>
-            <dd>LFIF-205874</dd>
+            <dd id="case-lost">—</dd>
             <dt>Found Report</dt>
-            <dd>LFIF-918342</dd>
+            <dd id="case-found">—</dd>
           </dl>
           <ol class="verify__steps">
             <li>See their photo ID.</li>
@@ -100,7 +109,8 @@
           </ol>
         </section>
 
-        <!-- app.js checks these against the Lost Report in the backend. -->
+        <!-- Release item sends these to the backend, which checks them against
+             the Lost Report before marking the item collected (app.js). -->
         <form
           id="verify-form"
           class="card card--padded verify__form"
@@ -159,7 +169,10 @@
           </div>
 
           <div class="verify__actions">
-            <a class="button button--secondary" href="view.html?status=approved"
+            <a
+              class="button button--secondary"
+              id="verify-cancel"
+              href="matches.html"
               >Cancel</a
             >
             <button class="button button--found" type="submit">
