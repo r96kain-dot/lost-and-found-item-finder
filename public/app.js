@@ -67,8 +67,7 @@ function initReportForm() {
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
 
-    // Same names as the item_reports columns. The photo isn't sent yet,
-    // since the backend doesn't take uploads.
+    // Same names as the item_reports columns.
     const data = new FormData(form);
     const report = {
       report_type: data.get("report_type"),
@@ -129,7 +128,7 @@ function initSubmittedReport() {
 // --- Show or hide parts of a page from the URL -------------------------------
 
 // Shows elements whose data-show-for matches the URL, e.g. ?report_type=found on
-// Report Submitted or ?status=collected on the moderator View page.
+// Report Submitted.
 function initShowFor() {
   const parts = document.querySelectorAll("[data-show-for]");
   if (parts.length === 0) return;
@@ -403,13 +402,6 @@ function escapeHtml(value) {
   );
 }
 
-// The photo icon used in the table thumbnails.
-const PHOTO_ICON =
-  '<svg class="photo-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" ' +
-  'stroke="currentColor" stroke-width="2" stroke-linecap="round" ' +
-  'stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" ' +
-  'height="16" rx="2" /><circle cx="9" cy="10" r="2" /><path d="M21 16l-5-5-9 9" /></svg>';
-
 // Turns a time into "5 hours" or "4 days", counting from now.
 function timeSince(value) {
   const hours = Math.max(0, (Date.now() - toDate(value)) / 36e5);
@@ -427,16 +419,21 @@ function matchStatus(match) {
   return "needs-review";
 }
 
-// One report's cell: photo thumbnail, item and colour, reference and area.
+// Match Status values as words.
+const MATCH_LABELS = {
+  "needs-review": "Needs review",
+  approved: "Approved",
+  collected: "Collected",
+  "not-a-match": "Not a match",
+};
+
+// One report's cell: item and colour, then reference and area.
 function matchReportCell(report) {
-  const thumb = report.has_photo
-    ? `<span class="thumb" role="img" aria-label="Photo">${PHOTO_ICON}</span>`
-    : '<span class="thumb thumb--none" role="img" aria-label="No photo"></span>';
-  return `<td><div class="match-report">${thumb}<div><strong>${escapeHtml(
+  return `<td><div class="match-report"><strong>${escapeHtml(
     report.item_type,
   )} — ${escapeHtml(report.colour)}</strong><span>${escapeHtml(
     report.reference_code,
-  )} · ${escapeHtml(report.area)}</span></div></div></td>`;
+  )} · ${escapeHtml(report.area)}</span></div></td>`;
 }
 
 // Builds a table row for one match, in the same layout as the designs.
@@ -446,12 +443,6 @@ function matchRow(match) {
   const score = Math.round(match.total_score);
   const scoreClass = closed ? "closed" : score >= 70 ? "high" : "mid";
   const days = (Date.now() - toDate(match.created_at)) / 864e5;
-  const labels = {
-    "needs-review": "Needs review",
-    approved: "Approved",
-    collected: "Collected",
-    "not-a-match": "Not a match",
-  };
 
   let waiting = escapeHtml(timeSince(match.created_at));
   if (closed) {
@@ -466,9 +457,7 @@ function matchRow(match) {
   const action =
     status === "needs-review"
       ? `<a class="button button--primary button--small" href="review-match.html?match=${match.match_id}">Review</a>`
-      : `<a class="button button--secondary button--small" href="view.html?match=${match.match_id}&amp;status=${
-          status === "approved" ? "approved" : "collected"
-        }">View</a>`;
+      : `<a class="button button--secondary button--small" href="view.html?match=${match.match_id}">View</a>`;
 
   const references = [match.lost_report, match.found_report]
     .map((r) => normaliseReference(r.reference_code))
@@ -478,7 +467,7 @@ function matchRow(match) {
   }>${matchReportCell(match.lost_report)}${matchReportCell(
     match.found_report,
   )}<td><span class="score score--${scoreClass}" style="--score: ${score}%">${score}%</span></td><td>${waiting}</td><td><span class="badge badge--status badge--${status}">${
-    labels[status]
+    MATCH_LABELS[status]
   }</span></td><td>${action}</td></tr>`;
 }
 
@@ -596,8 +585,9 @@ function daysApart(a, b) {
   );
 }
 
-// One report card: header, then a row per field with a tick when both match.
-function reportCard(report, other, kind) {
+// One report card: header, then a row per field. Review Match compares the two
+// reports (a tick when both match); View passes compare = false to leave it out.
+function reportCard(report, other, kind, compare = true) {
   const lost = kind === "lost";
   const days = daysApart(report.item_date, other.item_date);
   const icon = (state) =>
@@ -607,7 +597,9 @@ function reportCard(report, other, kind) {
         ? `<span class="field-result field-result--partial" role="img" aria-label="Partial match">${DASH_ICON}</span>`
         : "";
   const row = (label, value, state) =>
-    `<div class="report-card__row"><dt>${label}</dt><dd>${value}${icon(state)}</dd></div>`;
+    `<div class="report-card__row"><dt>${label}</dt><dd>${value}${
+      compare ? icon(state) : ""
+    }</dd></div>`;
   const text = (value) => `<span>${escapeHtml(value)}</span>`;
   const match = (field) =>
     sameValue(report[field], other[field]) ? "match" : "";
@@ -626,14 +618,12 @@ function reportCard(report, other, kind) {
   const brand = report.brand_model
     ? text(report.brand_model)
     : '<span class="report-card__empty">Not entered</span>';
-  const photo = `<span><span class="report-card__photo"><span class="thumb${
-    report.has_photo ? "" : " thumb--none"
-  }" aria-hidden="true">${report.has_photo ? PHOTO_ICON : ""}</span><span>${
-    report.has_photo ? "Photo added with the report" : "No photo"
-  }<span class="report-card__hint">Not scored. Compare them yourself.</span></span></span></span>`;
+  const hint = compare
+    ? '<span class="report-card__hint">Not scored. Read both before you confirm.</span>'
+    : "";
   const notes = `<span><span class="report-card__plain">${escapeHtml(
     report.notes || "No notes",
-  )}</span><span class="report-card__hint">Not scored. Read both before you confirm.</span></span>`;
+  )}</span>${hint}</span>`;
   const contact = `<span><span class="report-card__plain">${escapeHtml(
     report.contact_detail,
   )}</span></span>`;
@@ -648,7 +638,6 @@ function reportCard(report, other, kind) {
       text(formatDate(report.item_date)),
       days === 0 ? "match" : days <= 3 ? "partial" : "",
     ),
-    row("Photo", photo),
     row("Notes", notes),
     lost ? row("Contact", contact) : "",
   ];
@@ -686,6 +675,24 @@ function matchSummary(lost, found) {
   return "Same " + list + ", " + when;
 }
 
+// Gets one match from the backend (Review Match and View).
+function fetchMatch(matchId) {
+  const url = "/api/moderator/matches/" + encodeURIComponent(matchId);
+  return fetch(url, { credentials: "same-origin" })
+    .then((response) => {
+      if (response.status === 404) {
+        throw new Error("That match couldn't be found.");
+      }
+      if (!response.ok) {
+        throw new Error(
+          "We couldn't load this match. Please refresh the page.",
+        );
+      }
+      return response.json();
+    })
+    .then((data) => data.match);
+}
+
 // Loads the chosen match, fills the page, and saves the Moderator's decision.
 function initReviewMatch() {
   const pair = document.getElementById("report-pair");
@@ -717,19 +724,8 @@ function initReviewMatch() {
   }
   const url = "/api/moderator/matches/" + encodeURIComponent(matchId);
 
-  fetch(url, { credentials: "same-origin" })
-    .then((response) => {
-      if (response.status === 404) {
-        throw new Error("That match couldn't be found.");
-      }
-      if (!response.ok) {
-        throw new Error(
-          "We couldn't load this match. Please refresh the page.",
-        );
-      }
-      return response.json();
-    })
-    .then(({ match }) => {
+  fetchMatch(matchId)
+    .then((match) => {
       const score = Math.round(match.automatic_score);
       const ring = document.getElementById("score-ring");
       ring.style.setProperty("--score", score + "%");
@@ -798,19 +794,271 @@ function initReviewMatch() {
   );
 }
 
+// --- View --------------------------------------------------------------------
+
+// Shows a time like "21 Aug, 09:14".
+function formatTime(value) {
+  const date = toDate(value);
+  return (
+    date.toLocaleDateString("en-NZ", { day: "numeric", month: "short" }) +
+    ", " +
+    date.toLocaleTimeString("en-NZ", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    })
+  );
+}
+
+// The match's events in time order. Built from its dates until the backend
+// sends the Activity Log.
+function activityRows(match) {
+  const lost = match.lost_report;
+  const found = match.found_report;
+  const events = [
+    {
+      when: lost.created_at,
+      event: "Report submitted · Lost",
+      kind: "lost",
+      by: "Reporter",
+      detail:
+        lost.reference_code +
+        " filed." +
+        (lost.contact_method ? " Contact by " + lost.contact_method + "." : ""),
+    },
+    {
+      when: found.created_at,
+      event: "Report submitted · Found",
+      kind: "found",
+      by: "Reporter",
+      detail: "Found Report " + found.reference_code + " filed.",
+    },
+    {
+      when: match.created_at,
+      event: "Match flagged",
+      kind: "flagged",
+      by: "System",
+      detail: "Scored " + Math.round(match.automatic_score) + "%.",
+    },
+    {
+      when: found.received_at,
+      event: "Item received",
+      kind: "found",
+      by: "Moderator",
+      detail: "Handed in at the Main Office.",
+    },
+    {
+      when: match.reviewed_at,
+      event: match.decision === "approved" ? "Match approved" : "Not a match",
+      by: "Moderator",
+      detail: "Total score " + Math.round(match.total_score) + "%.",
+    },
+  ];
+
+  return events
+    .filter((e) => e.when)
+    .sort((a, b) => toDate(a.when) - toDate(b.when))
+    .map(
+      (e) =>
+        `<tr><td>${escapeHtml(formatTime(e.when))}</td><td><span class="event${
+          e.kind ? " event--" + e.kind : ""
+        }">${escapeHtml(e.event)}</span></td><td>${e.by}</td><td>${escapeHtml(
+          e.detail,
+        )}</td></tr>`,
+    )
+    .join("");
+}
+
+// Loads the chosen match and shows where it's up to, with the next step.
+// An approved match whose item isn't handed in yet gets Mark as received.
+function initView() {
+  const pair = document.getElementById("view-pair");
+  if (!pair) return;
+
+  const matchId = new URLSearchParams(window.location.search).get("match");
+  const banner = document.getElementById("view-banner");
+  const link = document.getElementById("view-link");
+  const markReceived = document.getElementById("mark-received");
+  let match;
+
+  // Shows the banner, with a link button if the next step is another page.
+  function showBanner(kind, text, linkText = "", linkHref = "") {
+    banner.className = "banner banner--" + kind;
+    document.getElementById("view-banner-text").textContent = text;
+    // An <svg> has no .hidden property, so set the attribute itself.
+    document
+      .getElementById("view-banner-icon")
+      .toggleAttribute("hidden", kind !== "success");
+    link.textContent = linkText;
+    link.href = linkHref || "matches.html";
+    link.hidden = !linkText;
+    markReceived.hidden = true;
+    banner.hidden = false;
+  }
+
+  // Fills the page from the match.
+  function render() {
+    const lost = match.lost_report;
+    const found = match.found_report;
+    const status = matchStatus(match);
+    const badge = document.getElementById("view-status");
+
+    document.getElementById("view-title").textContent =
+      lost.item_type + " — " + lost.colour;
+    badge.className = "badge badge--status badge--" + status;
+    badge.textContent = MATCH_LABELS[status];
+    badge.hidden = false;
+    pair.innerHTML =
+      reportCard(lost, found, "lost", false) +
+      reportCard(found, lost, "found", false);
+    document.getElementById("activity-rows").innerHTML = activityRows(match);
+    document.querySelector(".activity").hidden = false;
+
+    const reviewed = match.reviewed_at
+      ? " on " + formatDate(match.reviewed_at)
+      : "";
+    if (status === "needs-review") {
+      showBanner(
+        "info",
+        "This match hasn't been reviewed yet.",
+        "Review",
+        "review-match.html?match=" + match.match_id,
+      );
+    } else if (status === "not-a-match") {
+      showBanner("info", "Marked as not a match" + reviewed + ".");
+    } else if (status === "collected") {
+      showBanner("success", "Released to the owner. This case is closed.");
+    } else if (!found.received_at) {
+      showBanner(
+        "info",
+        "Match approved" +
+          reviewed +
+          ". The item hasn't been handed in at the Main Office yet.",
+      );
+      markReceived.hidden = false;
+    } else {
+      showBanner(
+        "info",
+        "Match approved" +
+          reviewed +
+          ". Item received on " +
+          formatDate(found.received_at) +
+          ". Verify the Claimant when they come to collect it.",
+        "Verify claimant",
+        "verify-claimant.html?match=" + match.match_id,
+      );
+    }
+  }
+
+  if (!matchId) {
+    showBanner(
+      "error",
+      "No match was chosen. Go back to Potential Matches and press View.",
+    );
+    return;
+  }
+
+  fetchMatch(matchId)
+    .then((data) => {
+      match = data;
+      render();
+    })
+    .catch((error) => showBanner("error", error.message));
+
+  // Records the item as handed in, then reloads to show Ready to collect.
+  markReceived.addEventListener("click", async () => {
+    markReceived.disabled = true;
+    try {
+      const response = await fetch(
+        "/api/moderator/items/receive/" +
+          encodeURIComponent(match.found_report.report_id),
+        { method: "POST", credentials: "same-origin" },
+      );
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || "Unable to mark the item as received.");
+      }
+      window.location.reload();
+    } catch (error) {
+      showBanner("error", error.message + " Please try again.");
+      markReceived.hidden = false;
+      markReceived.disabled = false;
+    }
+  });
+}
+
 // --- Verify Claimant ---------------------------------------------------------
 
-// Checks the Claimant's details against the Lost Report in the backend.
-// The backend logs claim_verified or claim_verification_failed either way.
+// Why a match can't be released yet, or "" if it can.
+function releaseBlocker(match) {
+  const status = matchStatus(match);
+  if (status === "collected") {
+    return "This item has already been released to its owner.";
+  }
+  if (status !== "approved") {
+    return "This match hasn't been approved, so the item can't be released.";
+  }
+  if (!match.found_report.received_at) {
+    return "The item hasn't been handed in yet. Mark it as received on the View page first.";
+  }
+  if (
+    match.lost_report.report_status !== "ready_to_collect" ||
+    match.found_report.report_status !== "ready_to_collect"
+  ) {
+    return "Both reports need to be Ready to collect before the item can be released.";
+  }
+  return "";
+}
+
+// Loads the chosen match, then Release item sends the Claimant's details to the
+// collect route. The backend checks them against the Lost Report (and logs the
+// check either way); if they match, both reports become Collected.
 function initVerifyClaimant() {
   const form = document.getElementById("verify-form");
   if (!form) return;
 
+  const matchId = new URLSearchParams(window.location.search).get("match");
   const reference = document.getElementById("claim-reference");
   const contact = document.getElementById("claim-contact");
+  const message = document.getElementById("verify-message");
   const error = document.getElementById("verify-error");
   const errorText = error.querySelector(".banner__text");
   const submit = form.querySelector('button[type="submit"]');
+  const viewUrl = "view.html?match=" + encodeURIComponent(matchId);
+
+  // Stops a release (no match, or it isn't ready) and says why.
+  function lock(text, kind = "error") {
+    message.textContent = text;
+    message.className = "banner banner--" + kind;
+    message.hidden = false;
+    submit.disabled = true;
+  }
+
+  if (!matchId) {
+    lock("No match was chosen. Open the match from Potential Matches first.");
+    return;
+  }
+
+  // Locked until the match has loaded.
+  submit.disabled = true;
+  fetchMatch(matchId)
+    .then((match) => {
+      const item =
+        match.lost_report.item_type + " — " + match.lost_report.colour;
+      document.getElementById("case-item").textContent = item;
+      document.getElementById("case-lost").textContent =
+        match.lost_report.reference_code;
+      document.getElementById("case-found").textContent =
+        match.found_report.reference_code;
+      document.getElementById("case-back-text").textContent = item;
+      document.getElementById("case-back").href = viewUrl;
+      document.getElementById("verify-cancel").href = viewUrl;
+
+      const blocker = releaseBlocker(match);
+      if (blocker) lock(blocker, "info");
+      else submit.disabled = false;
+    })
+    .catch((loadError) => lock(loadError.message));
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -818,30 +1066,35 @@ function initVerifyClaimant() {
     submit.disabled = true;
 
     try {
-      const response = await fetch("/api/moderator/claims/verify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "same-origin",
-        body: JSON.stringify({
-          reference_code: fullReference(reference.value),
-          contact_detail: contact.value.trim(),
-        }),
-      });
+      const response = await fetch(
+        "/api/moderator/items/collect/" + encodeURIComponent(matchId),
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "same-origin",
+          body: JSON.stringify({
+            reference_code: fullReference(reference.value),
+            contact_detail: contact.value.trim(),
+          }),
+        },
+      );
       const result = await response.json();
+
+      // Wrong details come back as 400 with verified: false.
+      if (result.verified === false) {
+        throw new Error(
+          "These details don't match the Lost Report. Check them with the Claimant before releasing the item.",
+        );
+      }
       if (!response.ok) {
-        throw new Error(result.error || "Unable to verify the Claimant.");
+        throw new Error(result.error || "Unable to release the item.");
       }
 
-      if (result.verified) {
-        alert("Claimant verified.");
-      } else {
-        errorText.textContent = "These details don't match the Lost Report.";
-        error.hidden = false;
-      }
-    } catch (verifyError) {
-      errorText.textContent = verifyError.message;
+      // Released: View now shows the match as Collected.
+      window.location.assign(viewUrl);
+    } catch (releaseError) {
+      errorText.textContent = releaseError.message;
       error.hidden = false;
-    } finally {
       submit.disabled = false;
     }
   });
@@ -860,4 +1113,5 @@ initLogin();
 initModeratorSession();
 initMatchFilter();
 initReviewMatch();
+initView();
 initVerifyClaimant();
