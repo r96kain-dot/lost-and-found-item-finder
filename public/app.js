@@ -411,20 +411,31 @@ function timeSince(value) {
   return days + (days === 1 ? " day" : " days");
 }
 
-// Works out the Match Status shown for a match.
+// A bug during testing found stale matches still appeared at the top despite being unavailable
+// These fixes are to address that issue, adding an Unavailable tag.
 function matchStatus(match) {
-  if (match.lost_report.report_status === "collected") return "collected";
-  if (match.decision === "approved") return "approved";
-  if (match.decision === "rejected") return "not-a-match";
-  return "needs-review";
-}
+    if (match.decision === "rejected") return "not-a-match";
 
-// Match Status values as words.
+    if (match.decision === "approved") {
+        return match.lost_report.report_status === "collected"
+            ? "collected"
+            : "approved";
+    }
+
+    const available = [match.lost_report, match.found_report].every(
+        (report) => ["submitted", "under_review"].includes(report.report_status)
+    );
+
+    return available ? "needs-review" : "unavailable";
+}
+// Match Status values as words. 
+// Added "Unavailable" during a bugfix
 const MATCH_LABELS = {
-  "needs-review": "Needs review",
-  approved: "Approved",
-  collected: "Collected",
-  "not-a-match": "Not a match",
+    "needs-review": "Needs review",
+    approved: "Approved",
+    collected: "Collected",
+    "not-a-match": "Not a match",
+    unavailable: "Unavailable",
 };
 
 // One report's cell: item and colour, then reference and area.
@@ -438,20 +449,27 @@ function matchReportCell(report) {
 
 // Builds a table row for one match, in the same layout as the designs.
 function matchRow(match) {
-  const status = matchStatus(match);
-  const closed = status === "collected" || status === "not-a-match";
+    const status = matchStatus(match);
+  // Added "Unavailable" support to our table
+    const closed =
+        status === "collected" ||
+        status === "not-a-match" ||
+        status === "unavailable";
   const score = Math.round(match.total_score);
   const scoreClass = closed ? "closed" : score >= 70 ? "high" : "mid";
   const days = (Date.now() - toDate(match.created_at)) / 864e5;
 
-  let waiting = escapeHtml(timeSince(match.created_at));
-  if (closed) {
-    waiting = `<span class="waiting--closed">Closed ${escapeHtml(
-      timeSince(match.reviewed_at || match.created_at).toLowerCase(),
-    )} ago</span>`;
-  } else if (days > 3) {
-    waiting = `<span class="waiting--late">${waiting} <span aria-hidden="true">!</span><span class="visually-hidden">(over 3 days)</span></span>`;
-  }
+    let waiting = escapeHtml(timeSince(match.created_at));
+
+    if (status === "unavailable") {
+        waiting = `<span class="waiting--closed">Unavailable</span>`;
+    } else if (closed) {
+        waiting = `<span class="waiting--closed">Closed ${escapeHtml(
+            timeSince(match.reviewed_at || match.created_at).toLowerCase(),
+        )} ago</span>`;
+    } else if (days > 3) {
+        waiting = `<span class="waiting--late">${waiting} <span aria-hidden="true">!</span><span class="visually-hidden">(over 3 days)</span></span>`;
+    }
 
   // Needs review opens Review Match; the rest open the View page.
   const action =
@@ -770,17 +788,23 @@ function initReviewMatch() {
         reportCard(match.lost_report, match.found_report, "lost") +
         reportCard(match.found_report, match.lost_report, "found");
 
-      // Already reviewed: show the saved score and decision, read only.
-      if (match.decision !== "pending") {
-        points.forEach((point) => {
-          point.checked = Number(point.value) === match.moderator_points;
-        });
-        lock(
-          "This match has already been reviewed: " +
-            (match.decision === "approved" ? "Approved." : "Not a match."),
-          "info",
-        );
-      }
+        // Already reviewed: show the saved score and decision, read only.
+        if (match.decision !== "pending") {
+            points.forEach((point) => {
+                point.checked = Number(point.value) === match.moderator_points;
+            });
+            lock(
+                "This match has already been reviewed: " +
+                (match.decision === "approved" ? "Approved." : "Not a match."),
+                "info",
+            );
+        } else if (matchStatus(match) === "unavailable") {
+            // To stop old Review links from approving reports already used elsewhere
+            lock(
+                "One of these reports is no longer available for matching.",
+                "info",
+            );
+        }
     })
     .catch((error) => lock(error.message));
 
@@ -842,63 +866,96 @@ function formatTime(value) {
   );
 }
 
-// The match's events in time order. Built from its dates until the backend
-// sends the Activity Log.
+// Builds the match activity history shown on View Match and uses
+// the actual db logs returned by the Match Details API
 function activityRows(match) {
-  const lost = match.lost_report;
-  const found = match.found_report;
-  const events = [
-    {
-      when: lost.created_at,
-      event: "Report submitted · Lost",
-      kind: "lost",
-      by: "Reporter",
-      detail:
-        lost.reference_code +
-        " filed." +
-        (lost.contact_method ? " Contact by " + lost.contact_method + "." : ""),
-    },
-    {
-      when: found.created_at,
-      event: "Report submitted · Found",
-      kind: "found",
-      by: "Reporter",
-      detail: "Found Report " + found.reference_code + " filed.",
-    },
-    {
-      when: match.created_at,
-      event: "Match flagged",
-      kind: "flagged",
-      by: "System",
-      detail: "Scored " + Math.round(match.automatic_score) + "%.",
-    },
-    {
-      when: found.received_at,
-      event: "Item received",
-      kind: "found",
-      by: "Moderator",
-      detail: "Handed in at the Main Office.",
-    },
-    {
-      when: match.reviewed_at,
-      event: match.decision === "approved" ? "Match approved" : "Not a match",
-      by: "Moderator",
-      detail: "Total score " + Math.round(match.total_score) + "%.",
-    },
-  ];
+    const lost = match.lost_report;
+    const found = match.found_report;
 
-  return events
-    .filter((e) => e.when)
-    .sort((a, b) => toDate(a.when) - toDate(b.when))
-    .map(
-      (e) =>
-        `<tr><td>${escapeHtml(formatTime(e.when))}</td><td><span class="event${
-          e.kind ? " event--" + e.kind : ""
-        }">${escapeHtml(e.event)}</span></td><td>${e.by}</td><td>${escapeHtml(
-          e.detail,
-        )}</td></tr>`,
-    )
-    .join("");
+    // Gives the database actions readable names for the View page
+    const actionLabels = {
+        potential_match_flagged: "Match flagged",
+        match_approved: "Match approved",
+        match_rejected: "Not a match",
+        item_received: "Item received",
+        claim_verified: "Claimant verified",
+        claim_verification_failed: "Claimant verification failed",
+        item_collected: "Item collected",
+    };
+
+    // Report submissions happened before the match existed, so their logs
+    // aren't linked to the match ID. This should keep them from the Lost and
+    // Found report details instead.
+    const events = [
+        {
+            when: lost.created_at,
+            event: "Report submitted · Lost",
+            kind: "lost",
+            by: "Reporter",
+            detail: lost.reference_code + " filed.",
+        },
+        {
+            when: found.created_at,
+            event: "Report submitted · Found",
+            kind: "found",
+            by: "Reporter",
+            detail: "Found Report " + found.reference_code + " filed.",
+        },
+    ];
+
+    // Actions affecting both reports are logged separately so
+    // some events will appear twice with different report references
+    for (const log of match.activity_logs || []) {
+        // Finds which report the activity log belongs to
+        const report =
+            log.report_id === lost.report_id
+                ? lost
+                : log.report_id === found.report_id
+                    ? found
+                    : null;
+
+        // Show whether the action affected the Lost or Found report(s)
+        let detail = report
+            ? (report === lost ? "Lost" : "Found") +
+            " Report " + report.reference_code + "."
+            : "Report #" + log.report_id + ".";
+
+        // Keeps the score details for flagged andd reviewed match actions
+        if (log.action === "potential_match_flagged") {
+            detail += " Scored " + Math.round(match.automatic_score) + "%.";
+        } else if (
+            log.action === "match_approved" ||
+            log.action === "match_rejected"
+        ) {
+            detail += " Total score " + Math.round(match.total_score) + "%.";
+        }
+
+        events.push({
+            when: log.created_at,
+            event: actionLabels[log.action] || log.action.replace(/_/g, " "),
+            kind:
+                log.action === "potential_match_flagged"
+                    ? "flagged"
+                    : log.action === "item_received"
+                        ? "found"
+                        : "",
+            by: log.moderator || "System",
+            detail: detail,
+        });
+    }
+
+    // To show the history in time order and builds existing activity table rows
+    return events
+        .filter((e) => e.when)
+        .sort((a, b) => toDate(a.when) - toDate(b.when))
+        .map(
+            (e) =>
+                `<tr><td>${escapeHtml(formatTime(e.when))}</td><td><span class="event${e.kind ? " event--" + e.kind : ""
+                }">${escapeHtml(e.event)}</span></td><td>${escapeHtml(e.by)}</td><td>${escapeHtml(
+                    e.detail,
+                )}</td></tr>`,
+        )
+        .join("");
 }
 
 // Loads the chosen match and shows where it's up to, with the next step.
@@ -956,7 +1013,14 @@ function initView() {
         "Review",
         "review-match.html?match=" + match.match_id,
       );
+    } else if (status === "unavailable") {
+        // Shows why this pending match can no longer be reviewed
+        showBanner(
+            "info",
+            "This potential match was not approved. One of its reports is no longer available for matching."
+        );
     } else if (status === "not-a-match") {
+        showBanner("info", "Marked as not a match" + reviewed + ".");
       showBanner("info", "Marked as not a match" + reviewed + ".");
     } else if (status === "collected") {
       showBanner("success", "Released to the owner. This case is closed.");
