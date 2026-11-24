@@ -474,87 +474,119 @@ function matchRow(match) {
 // Loads the matches from the backend, fills the stat cards and the table, and
 // sets up the Reference Number search and Match Status filter.
 function initMatchFilter() {
-  const table = document.getElementById("matches-table");
-  if (!table) return;
+    const table = document.getElementById("matches-table");
+    if (!table) return;
 
-  const search = document.getElementById("match-search");
-  const status = document.getElementById("match-status");
-  const empty = document.getElementById("matches-empty");
-  const emptyText = empty.querySelector("td");
-  let total = 0;
+    const search = document.getElementById("match-search");
+    const status = document.getElementById("match-status");
+    const empty = document.getElementById("matches-empty");
+    const emptyText = empty.querySelector("td");
+    let total = 0;
 
-  // Hides rows that don't match, and shows a message if none are left.
-  function applyFilter() {
-    const query = normaliseReference(search.value);
-    let shown = 0;
+    // Hides rows that don't match, and shows a message if none are left.
+    function applyFilter() {
+        const query = normaliseReference(search.value);
+        let shown = 0;
 
-    table.querySelectorAll("tbody tr[data-status]").forEach((row) => {
-      const matchesSearch =
-        query === "" ||
-        row.dataset.references.split(" ").some((ref) => ref.includes(query));
-      const matchesStatus =
-        status.value === "all" || row.dataset.status === status.value;
-      row.hidden = !(matchesSearch && matchesStatus);
-      if (!row.hidden) shown += 1;
-    });
+        table.querySelectorAll("tbody tr[data-status]").forEach((row) => {
+            const matchesSearch =
+                query === "" ||
+                row.dataset.references.split(" ").some((ref) => ref.includes(query));
+            const matchesStatus =
+                status.value === "all" || row.dataset.status === status.value;
+            row.hidden = !(matchesSearch && matchesStatus);
+            if (!row.hidden) shown += 1;
+        });
 
-    emptyText.textContent = total
-      ? "No Potential Matches fit this search."
-      : "No Potential Matches yet.";
-    empty.hidden = shown > 0;
-  }
+        emptyText.textContent = total
+            ? "No Potential Matches fit this search."
+            : "No Potential Matches yet.";
+        empty.hidden = shown > 0;
+    }
 
-  search.addEventListener("input", applyFilter);
-  status.addEventListener("change", applyFilter);
+    search.addEventListener("input", applyFilter);
+    status.addEventListener("change", applyFilter);
 
-  fetch("/api/moderator/matches?decision=all", { credentials: "same-origin" })
-    .then((response) => {
-      if (!response.ok) throw new Error("Unable to load matches.");
-      return response.json();
-    })
-    .then(({ matches }) => {
-      // Needs review first, then Approved, each longest wait first
-      // ("Waiting ↓"), then the closed ones, most recent first.
-      const byWait = (a, b) => toDate(a.created_at) - toDate(b.created_at);
-      const waiting = matches
-        .filter((m) => matchStatus(m) === "needs-review")
-        .sort(byWait);
-      const approved = matches
-        .filter((m) => matchStatus(m) === "approved")
-        .sort(byWait);
-      const closed = matches
-        .filter((m) => !waiting.includes(m) && !approved.includes(m))
-        .sort(
-          (a, b) =>
-            toDate(b.reviewed_at || b.created_at) -
-            toDate(a.reviewed_at || a.created_at),
-        );
-      empty.insertAdjacentHTML(
-        "beforebegin",
-        [...waiting, ...approved, ...closed].map(matchRow).join(""),
-      );
+    // Gets the current matches from backend and notifies us when info has changed.
+    // This keeps the table updated without needing to refresh the page
+    function loadMatches() {
+        fetch("/api/moderator/matches?decision=all", { credentials: "same-origin" })
+            .then((response) => {
+                if (!response.ok) throw new Error("Unable to load matches.");
+                return response.json();
+            })
+            .then(({ matches }) => {
+                // Clears the previous matches before adding updated results
+                // or else Socket.IO updates would add dupe rows to the table
+                table.querySelectorAll("tbody tr[data-status]").forEach((row) => row.remove());
 
-      const count = (s) => matches.filter((m) => matchStatus(m) === s).length;
-      document.getElementById("stat-awaiting").textContent =
-        count("needs-review");
-      document.getElementById("stat-late").textContent = matches.filter(
-        (m) =>
-          matchStatus(m) === "needs-review" &&
-          (Date.now() - toDate(m.created_at)) / 864e5 > 3,
-      ).length;
-      document.getElementById("stat-approved").textContent = count("approved");
-      document.getElementById("stat-collected").textContent =
-        count("collected");
+                // Sorts matches so ones that need reviewing appear first
+                // matches are also sorted by how long they've waited.
+                //Collected and Rejected matches appear last, uses creation date
+                // if a match doesn't have a review date. (further sorting)
+                const byWait = (a, b) => toDate(a.created_at) - toDate(b.created_at);
+                const waiting = matches
+                    .filter((m) => matchStatus(m) === "needs-review")
+                    .sort(byWait);
+                const approved = matches
+                    .filter((m) => matchStatus(m) === "approved")
+                    .sort(byWait);
+                const closed = matches
+                    .filter((m) => !waiting.includes(m) && !approved.includes(m))
+                    .sort(
+                        (a, b) =>
+                            toDate(b.reviewed_at || b.created_at) -
+                            toDate(a.reviewed_at || a.created_at),
+                    );
+                // Sorted matches back into the table using existing functions
+                // This also keeps the same layout and buttonos while replacing outdated info
+                empty.insertAdjacentHTML(
+                    "beforebegin",
+                    [...waiting, ...approved, ...closed].map(matchRow).join(""),
+                );
+                // Recalcs dashboard numbers using the latest match info
+                const count = (s) => matches.filter((m) => matchStatus(m) === s).length;
+                document.getElementById("stat-awaiting").textContent =
+                    count("needs-review");
+                document.getElementById("stat-late").textContent = matches.filter(
+                    (m) =>
+                        matchStatus(m) === "needs-review" &&
+                        (Date.now() - toDate(m.created_at)) / 864e5 > 3,
+                ).length;
+                document.getElementById("stat-approved").textContent = count("approved");
+                document.getElementById("stat-collected").textContent =
+                    count("collected");
 
-      total = matches.length;
-      applyFilter();
-    })
-    .catch(() => {
-      emptyText.textContent =
-        "We couldn't load the matches. Please refresh the page.";
-      empty.hidden = false;
-    });
-}
+                total = matches.length;
+                applyFilter();
+            })
+            .catch(() => {
+                emptyText.textContent =
+                    "We couldn't load the matches. Please refresh the page.";
+                empty.hidden = false;
+            });
+    }
+    // Load matches once when the Moderator first opens the page
+    loadMatches();
+
+    // Socket.IO listens for changes made while the Moderator is viewing this page
+    // the backend only sends a notification
+    if (typeof io === "function") {
+        const socket = io();
+        let connectedBefore = false;
+
+        socket.on("connect", () => {
+            // The first connection already has an initial API request
+            // If a disconnected socket reconnects, reload any changes we might have missed
+            if (connectedBefore) loadMatches();
+            connectedBefore = true;
+        });
+
+        socket.on("matches:changed", () => {
+            loadMatches();
+        });
+    }
+    }
 
 // --- Review Match ------------------------------------------------------------
 

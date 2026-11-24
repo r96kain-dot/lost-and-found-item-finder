@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- No tab icon yet; this stops the browser asking for favicon.ico. -->
@@ -8,13 +8,13 @@
     <title>Potential Matches · Lost &amp; Found Item Finder</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-    />
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
     <link rel="stylesheet" href="../style.css" />
+    <!-- Connects the Moderator page to Socket.IO for live match updates -->
+    <script src="/socket.io/socket.io.js" defer></script>
     <script src="../app.js" defer></script>
-  </head>
+</head>
   <body>
     <header class="site-header">
       <div class="site-header__inner">

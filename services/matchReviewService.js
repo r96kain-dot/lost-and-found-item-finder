@@ -28,6 +28,7 @@ const matchDetailsQuery = `
         l.photo_key IS NOT NULL AS lost_has_photo,
         l.report_status AS lost_report_status,
         l.created_at AS lost_created_at,
+        l.collected_at AS lost_collected_at,
         f.report_id AS found_report_id,
         f.reference_code AS found_reference_code,
         f.item_type AS found_item_type,
@@ -41,7 +42,8 @@ const matchDetailsQuery = `
         f.photo_key IS NOT NULL AS found_has_photo,
         f.received_at AS found_received_at,
         f.report_status AS found_report_status,
-        f.created_at AS found_created_at
+        f.created_at AS found_created_at,
+        f.collected_at AS found_collected_at
     FROM potential_matches p
     JOIN item_reports l ON l.report_id = p.lost_report_id
     JOIN item_reports f ON f.report_id = p.found_report_id
@@ -75,6 +77,7 @@ function formatMatch(row, includeContact = false) {
             result.notes = row[`${prefix}_notes`];
             result.contact_method = row[`${prefix}_contact_method`];
             result.contact_detail = row[`${prefix}_contact_detail`];
+            result.collected_at = row[`${prefix}_collected_at`];
             if (prefix === "found") result.received_at = row.found_received_at;
         }
 
@@ -135,7 +138,20 @@ async function getMatch(pool, matchId) {
 
     if (!rows.length) throw reviewError(404, "Potential match not found.");
 
-    return formatMatch(rows[0], true);
+    const [logs] = await pool.query(
+        `SELECT a.log_id, a.report_id, a.action, a.created_at,
+            m.email AS moderator
+     FROM activity_logs a
+     LEFT JOIN moderators m ON m.moderator_id = a.moderator_id
+     WHERE a.match_id = ?
+     ORDER BY a.created_at ASC, a.log_id ASC`,
+        [matchId]
+    );
+
+    const match = formatMatch(rows[0], true);
+    match.activity_logs = logs;
+
+    return match;
 }
 
 // Saves the Mod's score and decision to the database
@@ -177,7 +193,7 @@ async function reviewMatch(pool, { matchId, moderatorId, moderatorPoints, decisi
 
         // Lock both reports so overlapping approvals don't happen together
         const [reports] = await connection.query(
-            `SELECT report_id, report_type, report_status
+            `SELECT report_id, report_type, report_status, received_at
              FROM item_reports
              WHERE report_id IN (?, ?)
              ORDER BY report_id FOR UPDATE`,
@@ -228,11 +244,13 @@ async function reviewMatch(pool, { matchId, moderatorId, moderatorPoints, decisi
 
         if (decision === "approved") {
 
-            // Both reports become matched, but collection happens later
+            // If the found item was already received, both reports are ready for collection. Thanks Alex for the find!
+            const nextStatus = found.received_at ? "ready_to_collect" : "matched";
+
             await connection.query(
-                `UPDATE item_reports SET report_status = 'matched'
+                `UPDATE item_reports SET report_status = ? 
                  WHERE report_id IN (?, ?)`,
-                [match.lost_report_id, match.found_report_id]
+                [nextStatus, match.lost_report_id, match.found_report_id]
             );
         }
 
