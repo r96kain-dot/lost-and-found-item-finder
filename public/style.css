@@ -1011,7 +1011,9 @@ legend {
   color: var(--color-found);
 }
 
-.badge--not-a-match {
+/* Unavailable: never reviewed, but one report was used by another match. */
+.badge--not-a-match,
+.badge--unavailable {
   background: var(--color-border-light);
   color: var(--color-text-muted);
 }

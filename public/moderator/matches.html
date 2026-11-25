@@ -13,6 +13,8 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
     />
     <link rel="stylesheet" href="../style.css" />
+    <!-- Connects the Moderator page to Socket.IO for live match updates -->
+    <script src="/socket.io/socket.io.js" defer></script>
     <script src="../app.js" defer></script>
   </head>
   <body>
@@ -114,6 +116,7 @@
             <option value="approved">Approved</option>
             <option value="collected">Collected</option>
             <option value="not-a-match">Not a match</option>
+            <option value="unavailable">Unavailable</option>
           </select>
         </div>
       </div>
