@@ -428,6 +428,7 @@ function matchStatus(match) {
 
   return available ? "needs-review" : "unavailable";
 }
+
 // Match Status values as words.
 // Added "Unavailable" during a bugfix
 const MATCH_LABELS = {
@@ -542,7 +543,7 @@ function initMatchFilter() {
 
         // Sorts matches so ones that need reviewing appear first
         // matches are also sorted by how long they've waited.
-        //Collected and Rejected matches appear last, uses creation date
+        // Collected and Rejected matches appear last, uses creation date
         // if a match doesn't have a review date. (further sorting)
         const byWait = (a, b) => toDate(a.created_at) - toDate(b.created_at);
         const waiting = matches
@@ -559,7 +560,7 @@ function initMatchFilter() {
               toDate(a.reviewed_at || a.created_at),
           );
         // Sorted matches back into the table using existing functions
-        // This also keeps the same layout and buttonos while replacing outdated info
+        // This also keeps the same layout and buttons while replacing outdated info
         empty.insertAdjacentHTML(
           "beforebegin",
           [...waiting, ...approved, ...closed].map(matchRow).join(""),
@@ -857,16 +858,23 @@ function initReviewMatch() {
 
 // Shows a time like "21 Aug, 09:14".
 function formatTime(value) {
-  const date = toDate(value);
   return (
-    date.toLocaleDateString("en-NZ", { day: "numeric", month: "short" }) +
+    toDate(value).toLocaleDateString("en-NZ", {
+      day: "numeric",
+      month: "short",
+    }) +
     ", " +
-    date.toLocaleTimeString("en-NZ", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    })
+    formatClock(value)
   );
+}
+
+// Shows a time of day like "09:14".
+function formatClock(value) {
+  return toDate(value).toLocaleTimeString("en-NZ", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
 }
 
 // Builds the match activity history shown on View Match and uses
@@ -925,7 +933,7 @@ function activityRows(match) {
         "."
       : "Report #" + log.report_id + ".";
 
-    // Keeps the score details for flagged andd reviewed match actions
+    // Keeps the score details for flagged and reviewed match actions
     if (log.action === "potential_match_flagged") {
       detail += " Scored " + Math.round(match.automatic_score) + "%.";
     } else if (
@@ -1027,9 +1035,19 @@ function initView() {
       );
     } else if (status === "not-a-match") {
       showBanner("info", "Marked as not a match" + reviewed + ".");
-      showBanner("info", "Marked as not a match" + reviewed + ".");
     } else if (status === "collected") {
-      showBanner("success", "Released to the owner. This case is closed.");
+      // When and by whom, from collected_at and the item_collected log.
+      const release = (match.activity_logs || []).find(
+        (log) => log.action === "item_collected",
+      );
+      const when = lost.collected_at || (release && release.created_at);
+      showBanner(
+        "success",
+        "Released to the owner" +
+          (when ? " on " + formatDate(when) + " at " + formatClock(when) : "") +
+          (release && release.moderator ? " by " + release.moderator : "") +
+          ". This case is closed.",
+      );
     } else if (!found.received_at) {
       showBanner(
         "info",
